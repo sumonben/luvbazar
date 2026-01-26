@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation - Ecommerz{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Success Banner -->
+                <div class="text-center mb-5">
+                    <div style="font-size: 4rem; color: #28a745; margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h1 class="mb-2">Order Confirmed!</h1>
+                    <p class="lead text-muted">Thank you for your purchase. We're processing your order now.</p>
+                </div>
+
+                <!-- Order Details Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-receipt"></i> Order #ORD-001235</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted">Order Date</h6>
+                                <p>December 20, 2024 at 2:30 PM</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-muted">Estimated Delivery</h6>
+                                <p>December 23-25, 2024</p>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <h6 class="fw-bold text-muted mb-3">Shipping Address</h6>
+                        <div class="mb-4">
+                            <p class="mb-0">John Doe</p>
+                            <p class="mb-0">123 Main Street</p>
+                            <p class="mb-0">New York, NY 10001</p>
+                            <p>United States</p>
+                        </div>
+
+                        <hr>
+
+                        <h6 class="fw-bold text-muted mb-3">Items Ordered</h6>
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/80" alt="Product" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
+                                    <div>
+                                        <h6 class="mb-0">Premium Wireless Headphones</h6>
+                                        <small class="text-muted">Quantity: 1</small><br>
+                                        <small class="text-muted">Color: Black</small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <p class="mb-0 fw-bold">$129.99</p>
+                                    <small class="text-muted">SKU: HEADPHONES-001</small>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                <div class="d-flex align-items-center">
+                                    <img src="https://via.placeholder.com/80" alt="Product" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
+                                    <div>
+                                        <h6 class="mb-0">USB-C Cable (3 Pack)</h6>
+                                        <small class="text-muted">Quantity: 2</small><br>
+                                        <small class="text-muted">Color: White</small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <p class="mb-0 fw-bold">$39.98</p>
+                                    <small class="text-muted">SKU: CABLE-USB-003</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6"></div>
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Subtotal:</span>
+                                    <span>$169.97</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>Shipping:</span>
+                                    <span class="text-success">FREE</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-3">
+                                    <span>Tax:</span>
+                                    <span>$13.60</span>
+                                </div>
+                                <div class="d-flex justify-content-between" style="font-size: 1.2rem;">
+                                    <strong>Total:</strong>
+                                    <strong style="color: #28a745;">$183.57</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Status Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-truck"></i> Order Status</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <div style="width: 40px; height: 40px; background-color: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-check text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Order Confirmed</h6>
+                                        <p class="text-muted mb-0">Dec 20, 2024 at 2:30 PM</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <div style="width: 40px; height: 40px; background-color: #ffc107; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-box text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Processing</h6>
+                                        <p class="text-muted mb-0">Expected within 24 hours</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item mb-4">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <div style="width: 40px; height: 40px; background-color: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-shipping-fast text-muted"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Shipped</h6>
+                                        <p class="text-muted mb-0">Tracking number will be provided</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="timeline-item">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <div style="width: 40px; height: 40px; background-color: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-home text-muted"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-1">Delivered</h6>
+                                        <p class="text-muted mb-0">Dec 23-25, 2024</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info Boxes -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading"><i class="fas fa-envelope"></i> Confirmation Email</h6>
+                            <p class="mb-0">A confirmation email has been sent to john@example.com with order details and tracking information.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-success">
+                            <h6 class="alert-heading"><i class="fas fa-headset"></i> Need Help?</h6>
+                            <p class="mb-0">Contact our support team at support@ecommerz.com or call 1-800-SHOP-NOW</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{% url 'orders-list' %}" class="btn btn-lg btn-info">
+                        <i class="fas fa-receipt"></i> View All Orders
+                    </a>
+                    <a href="{% url 'products-list' %}" class="btn btn-lg btn-outline-primary">
+                        <i class="fas fa-shopping-bag"></i> Continue Shopping
+                    </a>
+                </div>
+
+                <!-- Recommended Products Section -->
+                <div class="mt-5">
+                    <h4 class="mb-3">You might also like</h4>
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
+                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
+                                <div class="card-body">
+                                    <h6 class="card-title">Portable Phone Charger</h6>
+                                    <div class="text-warning mb-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <p class="card-text text-muted">Fast charging, 20000mAh</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>$39.99</strong>
+                                        <button class="btn btn-sm btn-primary">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
+                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
+                                <div class="card-body">
+                                    <h6 class="card-title">Screen Protector Pack</h6>
+                                    <div class="text-warning mb-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <p class="card-text text-muted">Tempered glass, 3 pack</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>$14.99</strong>
+                                        <button class="btn btn-sm btn-primary">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
+                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
+                                <div class="card-body">
+                                    <h6 class="card-title">Phone Stand</h6>
+                                    <div class="text-warning mb-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star-half-alt"></i>
+                                    </div>
+                                    <p class="card-text text-muted">Adjustable, aluminum alloy</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>$24.99</strong>
+                                        <button class="btn btn-sm btn-primary">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-3 mb-4">
+                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
+                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
+                                <div class="card-body">
+                                    <h6 class="card-title">Wireless Mouse</h6>
+                                    <div class="text-warning mb-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <p class="card-text text-muted">2.4GHz, ergonomic design</p>
+                                </div>
+                                <div class="card-footer bg-transparent">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong>$34.99</strong>
+                                        <button class="btn btn-sm btn-primary">
+                                            <i class="fas fa-cart-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .hover-shadow:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
+        }
+    </style>
+{% endblock %}

@@ -1,0 +1,334 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils import timezone
+from django.conf import settings
+from decimal import Decimal
+import json
+import requests
+import hashlib
+
+from orders.models import Order, OrderItem
+from .models import Payment
+
+
+class SSLCommerzHelper:
+    """Helper class for SSL Commerz payment processing"""
+    
+    @staticmethod
+    def init_payment(order):
+        """Initialize SSL Commerz payment session"""
+        try:
+            from sslcommerz_lib import SSLCOMMERZ
+            
+            settings_dict = {
+                'store_id': settings.SSL_COMMERZ_STORE_ID,
+                'store_pass': settings.SSL_COMMERZ_STORE_PASSWORD,
+                'total_amount': float(order.total),
+                'currency': 'BDT',
+                'tran_id': f"TRAN_{order.order_number}",
+                'desc': f"Payment for order {order.order_number}",
+                'success_url': f"{settings.SITE_URL}/payments/ssl-commerz/success/",
+                'fail_url': f"{settings.SITE_URL}/payments/ssl-commerz/fail/",
+                'cancel_url': f"{settings.SITE_URL}/payments/ssl-commerz/cancel/",
+                'ipn_url': f"{settings.SITE_URL}/payments/ssl-commerz/ipn/",
+                'cus_name': order.first_name,
+                'cus_email': order.email,
+                'cus_add1': order.street_address,
+                'cus_city': order.shipping_city,
+                'cus_postcode': order.shipping_zip,
+                'cus_country': order.shipping_country,
+                'cus_phone': order.phone,
+                'shipping_method': 'NO',
+                'product_name': 'E-commerce Products',
+                'product_category': 'Products',
+                'product_profile': 'general',
+                'multi_card': '',
+                'allowed_bin': '',
+                'issandbox': True,  # Use sandbox for testing
+            }
+            
+            sslc = SSLCOMMERZ(settings_dict)
+            response = sslc.createSession(settings_dict)
+            
+            return response
+        except Exception as e:
+            print(f"SSL Commerz Error: {str(e)}")
+            return {'status': False, 'failedreason': str(e)}
+    
+    @staticmethod
+    def validate_payment(val_id):
+        """Validate SSL Commerz payment"""
+        try:
+            url = settings.SSL_COMMERZ_BASE_URL
+            data = {
+                'val_id': val_id,
+                'store_id': settings.SSL_COMMERZ_STORE_ID,
+                'store_pass': settings.SSL_COMMERZ_STORE_PASSWORD,
+            }
+            
+            response = requests.post(url, data=data, timeout=10)
+            return response.json()
+        except Exception as e:
+            print(f"Validation Error: {str(e)}")
+            return None
+    
+    @staticmethod
+    def verify_ipn_hash(ipn_dict):
+        """Verify IPN hash from SSL Commerz"""
+        try:
+            val_id = ipn_dict.get('val_id', '')
+            amount = ipn_dict.get('amount', '')
+            card_type = ipn_dict.get('card_type', '')
+            store_amount = ipn_dict.get('store_amount', '')
+            status = ipn_dict.get('status', '')
+            
+            hashString = (
+                f"{val_id}|{settings.SSL_COMMERZ_STORE_PASSWORD}|"
+                f"{amount}|{card_type}|{store_amount}|{status}"
+            )
+            
+            hash_value = hashlib.md5(hashString.encode()).hexdigest()
+            
+            return hash_value == ipn_dict.get('verify_sign', '')
+        except Exception as e:
+            print(f"Hash Verification Error: {str(e)}")
+            return False
+
+
+@login_required(login_url='login')
+def initiate_ssl_payment(request, order_id):
+    """Initiate SSL Commerz payment for an order"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    # Check if payment already exists
+    try:
+        payment = order.payment
+        if payment.status == 'completed':
+            messages.info(request, 'This order has already been paid.')
+            return redirect('order-detail', order_id=order.id)
+    except Payment.DoesNotExist:
+        pass
+    
+    # Initialize payment
+    response = SSLCommerzHelper.init_payment(order)
+    print(response.get('status'))
+    if response.get('status') == True:
+        # Create payment record
+        payment, created = Payment.objects.get_or_create(
+            order=order,
+            defaults={
+                'method': 'sslcommerz',
+                'amount': order.total,
+                'status': 'pending',
+            }
+        )
+        
+        # Redirect to SSL Commerz gateway
+        gateway_url = response.get('GatewayPageURL')
+        return redirect(gateway_url)
+    else:
+        error_msg = response.get('failedreason', 'Failed to initialize payment')
+        messages.error(request, f'Payment initialization failed: {error_msg}')
+        return redirect('checkout')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def ssl_payment_success(request):
+    """Handle SSL Commerz successful payment response"""
+    try:
+        data = request.POST
+        val_id = data.get('val_id')
+        
+        if not val_id:
+            return HttpResponse('Validation ID not found', status=400)
+        
+        # Validate payment with SSL Commerz
+        validation_response = SSLCommerzHelper.validate_payment(val_id)
+        
+        if validation_response and validation_response.get('status') == 'VALID':
+            # Extract transaction details
+            tran_id = data.get('tran_id')
+            order_number = tran_id.replace('TRAN_', '') if tran_id else None
+            
+            if order_number:
+                order = get_object_or_404(Order, order_number=order_number)
+                
+                # Update or create payment
+                payment, created = Payment.objects.get_or_create(
+                    order=order,
+                    defaults={'method': 'sslcommerz', 'amount': order.total}
+                )
+                
+                # Update payment details
+                payment.status = 'completed'
+                payment.transaction_id = val_id
+                payment.sslc_val_id = val_id
+                payment.sslc_tran_id = tran_id
+                payment.bank_tran_id = data.get('bank_tran_id')
+                payment.card_type = data.get('card_type')
+                payment.card_issuer = data.get('card_issuer')
+                payment.card_number = data.get('card_no', '').replace('-', '')[-4:] if data.get('card_no') else None
+                payment.processed_at = timezone.now()
+                payment.save()
+                
+                # Update order payment status
+                order.payment_status = 'paid'
+                order.status = 'processing'
+                order.save()
+                
+                # Clear the user's cart after successful payment
+                from cart.models import Cart
+                try:
+                    cart = Cart.objects.get(user=request.user)
+                    cart.items.all().delete()
+                except Cart.DoesNotExist:
+                    pass
+                
+                messages.success(request, 'Payment successful! Your order is being processed.')
+                return redirect('order-detail', order_id=order.id)
+        
+        messages.error(request, 'Payment validation failed.')
+        return redirect('checkout')
+    
+    except Exception as e:
+        print(f"Success Handler Error: {str(e)}")
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('checkout')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def ssl_payment_fail(request):
+    """Handle SSL Commerz failed payment response"""
+    try:
+        data = request.POST
+        tran_id = data.get('tran_id')
+        order_number = tran_id.replace('TRAN_', '') if tran_id else None
+        
+        if order_number:
+            order = get_object_or_404(Order, order_number=order_number)
+            
+            # Update or create payment
+            payment, created = Payment.objects.get_or_create(
+                order=order,
+                defaults={'method': 'sslcommerz', 'amount': order.total}
+            )
+            
+            payment.status = 'failed'
+            payment.sslc_val_id = data.get('val_id')
+            payment.sslc_tran_id = tran_id
+            payment.save()
+            
+            messages.error(request, 'Payment failed. Please try again.')
+        
+        return redirect('checkout')
+    
+    except Exception as e:
+        print(f"Fail Handler Error: {str(e)}")
+        return redirect('checkout')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def ssl_payment_cancel(request):
+    """Handle SSL Commerz cancelled payment"""
+    try:
+        data = request.POST
+        tran_id = data.get('tran_id')
+        order_number = tran_id.replace('TRAN_', '') if tran_id else None
+        
+        if order_number:
+            order = get_object_or_404(Order, order_number=order_number)
+            
+            # Update or create payment
+            payment, created = Payment.objects.get_or_create(
+                order=order,
+                defaults={'method': 'sslcommerz', 'amount': order.total}
+            )
+            
+            payment.status = 'pending'
+            payment.save()
+            
+            messages.warning(request, 'Payment cancelled.')
+        
+        return redirect('checkout')
+    
+    except Exception as e:
+        print(f"Cancel Handler Error: {str(e)}")
+        return redirect('checkout')
+
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def ssl_payment_ipn(request):
+    """Handle SSL Commerz IPN (Instant Payment Notification)"""
+    try:
+        data = request.POST.dict()
+        
+        # Verify hash
+        if not SSLCommerzHelper.verify_ipn_hash(data):
+            return HttpResponse('Invalid request', status=400)
+        
+        tran_id = data.get('tran_id')
+        val_id = data.get('val_id')
+        order_number = tran_id.replace('TRAN_', '') if tran_id else None
+        
+        if order_number:
+            order = get_object_or_404(Order, order_number=order_number)
+            status = data.get('status')
+            
+            # Update or create payment
+            payment, created = Payment.objects.get_or_create(
+                order=order,
+                defaults={'method': 'sslcommerz', 'amount': order.total}
+            )
+            
+            if status == 'VALIDATED':
+                payment.status = 'completed'
+                payment.transaction_id = val_id
+                payment.sslc_val_id = val_id
+                payment.sslc_tran_id = tran_id
+                payment.bank_tran_id = data.get('bank_tran_id')
+                payment.card_type = data.get('card_type')
+                payment.card_issuer = data.get('card_issuer')
+                payment.card_number = data.get('card_no', '').replace('-', '')[-4:] if data.get('card_no') else None
+                payment.processed_at = timezone.now()
+                
+                # Update order payment status
+                order.payment_status = 'paid'
+                order.status = 'processing'
+            
+            elif status in ['FAILED', 'CANCELLED']:
+                payment.status = 'failed'
+            
+            payment.save()
+            order.save()
+        
+        return HttpResponse('IPN received', status=200)
+    
+    except Exception as e:
+        print(f"IPN Handler Error: {str(e)}")
+        return HttpResponse(f'Error: {str(e)}', status=500)
+
+
+@login_required(login_url='login')
+def payment_status(request, order_id):
+    """Check payment status for an order"""
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    
+    try:
+        payment = order.payment
+        context = {
+            'order': order,
+            'payment': payment,
+            'paid': payment.status == 'completed',
+        }
+        return render(request, 'payments/payment_status.html', context)
+    except Payment.DoesNotExist:
+        messages.info(request, 'No payment record found for this order.')
+        return redirect('order-detail', order_id=order.id)

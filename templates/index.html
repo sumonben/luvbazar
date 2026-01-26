@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Ecommerz{% endblock %}
+
+{% block content %}
+    <!-- Hero Section -->
+    <div class="hero">
+        <h1>Welcome to Ecommerz</h1>
+        <p>Discover Amazing Products at Unbeatable Prices</p>
+        <a href="{% url 'products-list' %}" class="btn btn-light btn-lg">Shop Now</a>
+    </div>
+
+    <div class="container-lg py-5">
+        <!-- Features Section -->
+        <div class="row mb-5">
+            <div class="col-md-4 text-center">
+                <i class="fas fa-shipping-fast" style="font-size: 3rem; color: #007bff; margin-bottom: 15px;"></i>
+                <h4>Fast Shipping</h4>
+                <p>Get your products delivered quickly and safely to your doorstep.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-undo" style="font-size: 3rem; color: #007bff; margin-bottom: 15px;"></i>
+                <h4>Easy Returns</h4>
+                <p>30-day hassle-free returns on all products.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-lock" style="font-size: 3rem; color: #007bff; margin-bottom: 15px;"></i>
+                <h4>Secure Payment</h4>
+                <p>Your payment information is always safe and secure.</p>
+            </div>
+        </div>
+
+        <!-- Featured Products Section -->
+        <h2 class="mb-4">Featured Products</h2>
+        <div class="row">
+            {% for product in featured_products %}
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="card product-card">
+                        <div class="product-image">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; height: 250px; object-fit: cover;">
+                            {% else %}
+                                <i class="fas fa-box"></i>
+                            {% endif %}
+                        </div>
+                        <div class="product-body">
+                            <h5 class="product-name">{{ product.name }}</h5>
+                            <div class="product-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-muted">({{ product.reviews.count }})</span>
+                            </div>
+                            <div class="product-price">${{ product.price }}</div>
+                            <div class="product-stock">
+                                {% if product.stock > 0 %}
+                                    <span class="badge bg-success">In Stock</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'product-detail' product.slug %}" class="btn btn-primary btn-sm mb-2">View Details</a>
+                            {% if product.stock > 0 %}
+                                <button class="btn btn-outline-primary btn-sm w-100" onclick="addToCart({{ product.id }})">
+                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="text-center text-muted">No products available yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Categories Section -->
+        <div class="mt-5 pt-5 border-top">
+            <h2 class="mb-4">Shop by Category</h2>
+            <div class="row">
+                {% for category in categories %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <a href="{% url 'category' category.slug %}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-folder"></i> {{ category.name }}
+                            <span class="badge bg-primary ms-2">{{ category.products.count }}</span>
+                        </a>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p class="text-center text-muted">No categories available yet.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div class="mt-5 pt-5 bg-light rounded p-4 text-center">
+            <h3>Subscribe to Our Newsletter</h3>
+            <p>Get exclusive offers and updates delivered to your inbox!</p>
+            <form method="post" class="d-flex justify-content-center gap-2">
+                {% csrf_token %}
+                <input type="email" class="form-control" style="max-width: 300px;" placeholder="Enter your email" required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

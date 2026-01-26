@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}About Us - Ecommerz{% endblock %}
+
+{% block content %}
+    <div class="hero" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white;">
+        <h1>About Ecommerz</h1>
+        <p>Your trusted online shopping destination</p>
+    </div>
+
+    <div class="container-lg py-5">
+        <!-- Mission Section -->
+        <div class="row mb-5">
+            <div class="col-lg-6 mb-4">
+                <h2>Our Mission</h2>
+                <p>At Ecommerz, we believe that shopping should be easy, affordable, and enjoyable. Our mission is to provide customers with a wide selection of quality products at competitive prices, backed by exceptional customer service.</p>
+                <p>We're committed to making online shopping accessible to everyone, with fast shipping, easy returns, and secure payments.</p>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://via.placeholder.com/400x300" alt="Our Mission" class="img-fluid rounded">
+            </div>
+        </div>
+
+        <!-- Values Section -->
+        <div class="row mb-5 border-top pt-5">
+            <h2 class="mb-4 text-center">Our Values</h2>
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-handshake" style="font-size: 2.5rem; color: #007bff; margin-bottom: 15px;"></i>
+                    <h5>Trust</h5>
+                    <p>We build trust through transparency, quality products, and reliable service.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-star" style="font-size: 2.5rem; color: #007bff; margin-bottom: 15px;"></i>
+                    <h5>Quality</h5>
+                    <p>Every product we offer is carefully selected to ensure the highest quality standards.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="text-center">
+                    <i class="fas fa-heart" style="font-size: 2.5rem; color: #007bff; margin-bottom: 15px;"></i>
+                    <h5>Customer Care</h5>
+                    <p>Your satisfaction is our priority. We're always here to help and support you.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Section -->
+        <div class="row border-top pt-5 mb-5">
+            <h2 class="mb-4 text-center">Why Choose Us?</h2>
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-box" style="font-size: 2rem; color: #007bff; margin-bottom: 15px;"></i>
+                        <h5 class="card-title">Wide Selection</h5>
+                        <p class="card-text">Choose from thousands of products across multiple categories.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-dollar-sign" style="font-size: 2rem; color: #28a745; margin-bottom: 15px;"></i>
+                        <h5 class="card-title">Best Prices</h5>
+                        <p class="card-text">We offer competitive pricing with regular discounts and promotions.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-shipping-fast" style="font-size: 2rem; color: #ffc107; margin-bottom: 15px;"></i>
+                        <h5 class="card-title">Fast Shipping</h5>
+                        <p class="card-text">Free shipping on orders over $50 with quick delivery times.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="card text-center h-100">
+                    <div class="card-body">
+                        <i class="fas fa-shield-alt" style="font-size: 2rem; color: #dc3545; margin-bottom: 15px;"></i>
+                        <h5 class="card-title">Secure & Safe</h5>
+                        <p class="card-text">Your personal and payment information is always protected.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact CTA -->
+        <div class="bg-light rounded p-5 text-center border-top pt-5">
+            <h3>Have Questions?</h3>
+            <p class="text-muted mb-4">Our friendly customer service team is ready to help!</p>
+            <a href="{% url 'contact' %}" class="btn btn-primary btn-lg">Contact Us</a>
+        </div>
+    </div>
+{% endblock %}

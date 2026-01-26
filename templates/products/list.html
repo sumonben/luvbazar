@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Products - Ecommerz{% endblock %}
+
+{% block content %}
+    <div class="container-lg py-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-4">
+                <div class="sidebar">
+                    <h5>Filter Products</h5>
+                    
+                    <!-- Categories -->
+                    <div class="mb-4">
+                        <h6>Categories</h6>
+                        <form method="get" id="filterForm">
+                            {% for category in categories %}
+                                <div class="form-check">
+                                    <input class="form-check-input category-filter" type="radio" name="category" 
+                                           value="{{ category.slug }}" id="cat-{{ category.id }}"
+                                           {% if category.slug == selected_category %}checked{% endif %}>
+                                    <label class="form-check-label" for="cat-{{ category.id }}">
+                                        {{ category.name }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="radio" name="category" value="" id="cat-all"
+                                       {% if not selected_category %}checked{% endif %}>
+                                <label class="form-check-label" for="cat-all">
+                                    All Categories
+                                </label>
+                            </div>
+                            
+                            <!-- Price Range -->
+                            <div class="mb-4 mt-4">
+                                <h6>Price Range</h6>
+                                <div class="input-group input-group-sm mb-2">
+                                    <input type="number" class="form-control" name="min_price" placeholder="Min" id="minPrice">
+                                    <input type="number" class="form-control" name="max_price" placeholder="Max" id="maxPrice">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-sm btn-primary w-100">Apply Filters</button>
+                        </form>
+                    </div>
+
+                    <!-- Ratings -->
+                    <div class="mb-4">
+                        <h6>Rating</h6>
+                        {% for i in "54321" %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="rating-{{ i }}" disabled title="Coming soon">
+                                <label class="form-check-label" for="rating-{{ i }}">
+                                    {% for star in "12345" %}
+                                        {% if forloop.counter <= i %}<i class="fas fa-star" style="color: #ffc107;"></i>{% endif %}
+                                    {% endfor %}
+                                    and above
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Products</h2>
+                    <div class="d-flex gap-2">
+                        <form method="get" class="d-flex search-box mb-0">
+                            <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_query }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                        <form method="get" class="mb-0">
+                            <select class="form-select" name="sort" style="max-width: 200px;" onchange="this.form.submit()">
+                                <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>Newest</option>
+                                <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="-price" {% if request.GET.sort == '-price' %}selected{% endif %}>Price: High to Low</option>
+                                <option value="-rating" {% if request.GET.sort == '-rating' %}selected{% endif %}>Best Rating</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+                        <li class="breadcrumb-item active">Products</li>
+                    </ol>
+                </nav>
+
+                <!-- Products Grid -->
+                {% if products %}
+                    <div class="row">
+                        {% for product in products %}
+                            <div class="col-md-6 col-lg-4 mb-4">
+                                <div class="card product-card h-100">
+                                    <div class="product-image">
+                                        {% if product.image %}
+                                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; height: 250px; object-fit: cover;">
+                                        {% else %}
+                                            <i class="fas fa-box"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="product-body d-flex flex-column">
+                                        <h5 class="product-name flex-grow-1">{{ product.name }}</h5>
+                                        <p class="text-muted" style="font-size: 0.9rem;">{{ product.description|truncatewords:10 }}</p>
+                                        <div class="product-rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= product.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <span class="text-muted">({{ product.reviews.count }})</span>
+                                        </div>
+                                        <div class="product-price">${{ product.price }}</div>
+                                        <div class="product-stock">
+                                            {% if product.stock > 0 %}
+                                                <span class="badge bg-success">In Stock ({{ product.stock }})</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Out of Stock</span>
+                                            {% endif %}
+                                        </div>
+                                        <a href="{% url 'product-detail' product.slug %}" class="btn btn-primary btn-sm mb-2">View Details</a>
+                                        {% if product.stock > 0 %}
+                                            <button class="btn btn-outline-primary btn-sm w-100" onclick="addToCart({{ product.id }})">
+                                                <i class="fas fa-shopping-cart"></i> Add to Cart
+                                            </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                        <nav aria-label="Page navigation" class="mt-5">
+                            <ul class="pagination justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page=1">First</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in page_obj.paginator.page_range %}
+                                    {% if page_obj.number == num %}
+                                        <li class="page-item active">
+                                            <span class="page-link">{{ num }}</span>
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> No products found. Try adjusting your filters.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

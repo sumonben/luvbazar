@@ -1,0 +1,303 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - Ecommerz{% endblock %}
+
+{% block content %}
+    <div class="container py-5">
+        <div class="row">
+            <!-- Sidebar Navigation -->
+            <div class="col-lg-3 mb-4">
+                <div class="card">
+                    <div class="card-body text-center border-bottom">
+                        <i class="fas fa-user-circle" style="font-size: 3rem; color: #007bff;"></i>
+                        <h5 class="mt-3">{{ user.get_full_name|default:user.username }}</h5>
+                        <p class="text-muted">{{ user.email }}</p>
+                    </div>
+                    <nav class="nav flex-column card-body">
+                        <a class="nav-link active" href="#profile" data-bs-toggle="tab">
+                            <i class="fas fa-user"></i> Profile Info
+                        </a>
+                        <a class="nav-link" href="#addresses" data-bs-toggle="tab">
+                            <i class="fas fa-map-marker-alt"></i> Addresses
+                        </a>
+                        <a class="nav-link" href="#orders" data-bs-toggle="tab">
+                            <i class="fas fa-shopping-bag"></i> My Orders
+                        </a>
+                        <a class="nav-link" href="#security" data-bs-toggle="tab">
+                            <i class="fas fa-lock"></i> Security
+                        </a>
+                        <hr>
+                        <a class="nav-link text-danger" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-9">
+                <div class="tab-content">
+                    <!-- Profile Info Tab -->
+                    <div class="tab-pane fade show active" id="profile">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user"></i> Personal Information</h5>
+                            </div>
+                            <div class="card-body">
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+
+                                <form method="post" action="{% url 'profile-update' %}">
+                                    {% csrf_token %}
+                                    
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="first_name" class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="last_name" class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="+1 (555) 000-0000">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="bio" class="form-label">Bio</label>
+                                        <textarea class="form-control" id="bio" name="bio" rows="3" placeholder="Tell us about yourself..."></textarea>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Save Changes
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Addresses Tab -->
+                    <div class="tab-pane fade" id="addresses">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> Saved Addresses</h5>
+                                <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                                    <i class="fas fa-plus"></i> Add New
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Sample address card -->
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Home <span class="badge bg-success">Default</span></h6>
+                                                <p class="card-text text-muted">
+                                                    123 Main Street<br>
+                                                    New York, NY 10001<br>
+                                                    (555) 123-4567
+                                                </p>
+                                                <button class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card border">
+                                            <div class="card-body">
+                                                <h6 class="card-title">Office</h6>
+                                                <p class="card-text text-muted">
+                                                    456 Business Ave<br>
+                                                    Suite 200<br>
+                                                    New York, NY 10002<br>
+                                                    (555) 987-6543
+                                                </p>
+                                                <button class="btn btn-sm btn-outline-primary me-2">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orders Tab -->
+                    <div class="tab-pane fade" id="orders">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> Order History</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Total</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>#ORD-001234</td>
+                                                <td>Dec 15, 2024</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                                <td>$125.99</td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-info">View</a>
+                                                    <a href="#" class="btn btn-sm btn-primary">Reorder</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-001233</td>
+                                                <td>Dec 10, 2024</td>
+                                                <td><span class="badge bg-warning">Shipped</span></td>
+                                                <td>$89.50</td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-info">View</a>
+                                                    <a href="#" class="btn btn-sm btn-primary">Reorder</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>#ORD-001232</td>
+                                                <td>Dec 05, 2024</td>
+                                                <td><span class="badge bg-success">Delivered</span></td>
+                                                <td>$245.00</td>
+                                                <td>
+                                                    <a href="#" class="btn btn-sm btn-info">View</a>
+                                                    <a href="#" class="btn btn-sm btn-primary">Reorder</a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Tab -->
+                    <div class="tab-pane fade" id="security">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-lock"></i> Security Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-4">
+                                    <h6>Change Password</h6>
+                                    <form method="post" action="{% url 'change-password' %}">
+                                        {% csrf_token %}
+                                        
+                                        <div class="mb-3">
+                                            <label for="old_password" class="form-label">Current Password</label>
+                                            <input type="password" class="form-control" id="old_password" name="old_password" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="new_password1" class="form-label">New Password</label>
+                                            <input type="password" class="form-control" id="new_password1" name="new_password1" required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label for="new_password2" class="form-label">Confirm New Password</label>
+                                            <input type="password" class="form-control" id="new_password2" name="new_password2" required>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-key"></i> Update Password
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <hr>
+
+                                <div>
+                                    <h6>Two-Factor Authentication</h6>
+                                    <p class="text-muted">Add an extra layer of security to your account</p>
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-shield-alt"></i> Enable 2FA
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Address Type</label>
+                            <select class="form-select">
+                                <option>Home</option>
+                                <option>Office</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Street Address</label>
+                            <input type="text" class="form-control" placeholder="Enter street address">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">City</label>
+                            <input type="text" class="form-control" placeholder="Enter city">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">State/Province</label>
+                            <input type="text" class="form-control" placeholder="Enter state">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">ZIP/Postal Code</label>
+                            <input type="text" class="form-control" placeholder="Enter ZIP code">
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="setDefault">
+                            <label class="form-check-label" for="setDefault">
+                                Set as default address
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
