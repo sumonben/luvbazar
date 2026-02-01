@@ -102,10 +102,14 @@ class SSLCommerzHelper:
             return False
 
 
-@login_required(login_url='login')
 def initiate_ssl_payment(request, order_id):
     """Initiate SSL Commerz payment for an order"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+    else:
+        order = get_object_or_404(Order, id=order_id)
+        if order.user:
+            return redirect('login')
     
     # Check if payment already exists
     try:
@@ -320,10 +324,14 @@ def ssl_payment_ipn(request):
         return HttpResponse(f'Error: {str(e)}', status=500)
 
 
-@login_required(login_url='login')
 def payment_status(request, order_id):
     """Check payment status for an order"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+    else:
+        order = get_object_or_404(Order, id=order_id)
+        if order.user:
+            return redirect('login')
     
     try:
         payment = order.payment

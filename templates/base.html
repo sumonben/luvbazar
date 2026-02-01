@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,40 +11,66 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Toastr CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
     <!-- Custom CSS -->
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
+            --primary-color: #4f46e5;
+            --secondary-color: #64748b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
+            background: linear-gradient(135deg, #e9dfdc 30%, #f3f4f6 100%);
+            min-height: 100vh;
         }
 
         /* Navbar */
         .navbar {
-            background-color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary-color), #ec9e71);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            padding: 15px 0;
         }
 
         .navbar-brand {
-            font-weight: bold;
-            color: var(--primary-color) !important;
-            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff !important;
+            font-size: 1.6rem;
+            letter-spacing: 0.5px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .nav-link {
-            color: #333 !important;
-            margin: 0 10px;
-            transition: color 0.3s ease;
+            color: rgba(255,255,255,0.9) !important;
+            margin: 0 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .nav-link:hover {
-            color: var(--primary-color) !important;
+            color: #fff !important;
+            transform: translateY(-2px);
+            text-shadow: 0 0 8px rgba(255,255,255,0.4);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 50%;
+            background-color: #fff;
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after {
+            width: 80%;
         }
 
         .cart-badge {
@@ -64,7 +91,7 @@
 
         /* Hero Section */
         .hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, #4338ca 100%);
             color: white;
             padding: 80px 20px;
             text-align: center;
@@ -145,8 +172,8 @@
         }
 
         .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
+            background-color: #4338ca;
+            border-color: #4338ca;
         }
 
         /* Footer */
@@ -301,12 +328,20 @@
                 font-size: 1rem;
             }
         }
+
+        /* Bootstrap Overrides */
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .text-primary { color: var(--primary-color) !important; }
+        .bg-success { background-color: var(--success-color) !important; }
+        .text-success { color: var(--success-color) !important; }
+        .bg-danger { background-color: var(--danger-color) !important; }
+        .text-danger { color: var(--danger-color) !important; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-lg">
             <a class="navbar-brand" href="{% url 'home' %}">
                 <i class="fas fa-shopping-bag"></i> Ecommerz
@@ -314,8 +349,9 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                
+                <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
@@ -331,10 +367,12 @@
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="{% url 'cart' %}">
                             <i class="fas fa-shopping-cart"></i>
-                            {% if cart_count > 0 %}
-                                <span class="cart-badge">{{ cart_count }}</span>
-                            {% endif %}
+                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge {% if not cart_item_count or cart_item_count == 0 %}d-none{% endif %}">
+                                {{ cart_item_count|default:0 }}
+                            </span>
                         </a>
+                       
+
                     </li>
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
@@ -357,6 +395,14 @@
                         </li>
                     {% endif %}
                 </ul>
+                <!-- Search Form -->
+                <form class="d-flex mx-auto position-relative" action="{% url 'products-list' %}" method="GET" style="width: 100%; max-width: 500px;">
+                    <input class="form-control me-2" type="search" name="search" id="search-input" placeholder="Search products..." aria-label="Search" autocomplete="off" value="{{ search_query|default:'' }}">
+                    <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
+                    <!-- Autocomplete Results Container -->
+                    <div id="search-results" class="position-absolute w-100 bg-white shadow rounded" style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
+                </form>
+
             </div>
         </div>
     </nav>
@@ -425,10 +471,14 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <!-- Cart Manager JS -->
+    <script src="{% static 'js/cart_manager.js' %}"></script>
     <!-- Custom JS -->
     <script>
         // Add to cart function
-        function addToCart(productId) {
+        function addToCart(productId, btn) {
             const quantity = document.getElementById('quantity') ? document.getElementById('quantity').value : 1;
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const formData = new FormData();
@@ -453,6 +503,21 @@
                     alert(data.message);
                     // Update cart count in navbar
                     updateCartCount(data.cart_count);
+                    
+                    // Update all buttons for this product on the page
+                    const buttons = document.querySelectorAll(`.add-to-cart-btn[data-product-id="${productId}"]`);
+                    if (buttons.length > 0) {
+                        buttons.forEach(button => {
+                            button.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
+                            button.disabled = true;
+                            button.classList.remove('btn-outline-primary');
+                            button.classList.add('btn-primary');
+                        });
+                    } else if (btn) {
+                        // Fallback for buttons without the class
+                        btn.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
+                        btn.disabled = true;
+                    }
                 } else {
                     alert('Error: ' + (data.message || 'Failed to add to cart'));
                 }
@@ -485,6 +550,69 @@
             }
             return cookieValue;
         }
+
+        // Autocomplete Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const resultsContainer = document.getElementById('search-results');
+            
+            if (searchInput && resultsContainer) {
+                let timeoutId;
+
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(timeoutId);
+                    const query = this.value;
+                    
+                    if (query.length < 2) {
+                        resultsContainer.style.display = 'none';
+                        return;
+                    }
+
+                    timeoutId = setTimeout(() => {
+                        fetch(`/products/search-autocomplete/?term=${encodeURIComponent(query)}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.length > 0) {
+                                resultsContainer.innerHTML = '';
+                                data.forEach(item => {
+                                    const div = document.createElement('div');
+                                    div.className = 'search-result-item p-2 border-bottom d-flex align-items-center';
+                                    div.style.cursor = 'pointer';
+                                    div.innerHTML = `
+                                        ${item.image ? `<img src="${item.image}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;" class="rounded">` : '<div style="width: 40px; height: 40px; background: #eee; margin-right: 10px;" class="rounded d-flex align-items-center justify-content-center"><i class="fas fa-image text-muted"></i></div>'}
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 0.9rem;">${item.label}</div>
+                                            <div class="small text-primary">$${item.price.toFixed(2)}</div>
+                                        </div>
+                                    `;
+                                    div.addEventListener('click', () => {
+                                        window.location.href = item.url;
+                                    });
+                                    div.addEventListener('mouseenter', () => div.classList.add('bg-light'));
+                                    div.addEventListener('mouseleave', () => div.classList.remove('bg-light'));
+                                    resultsContainer.appendChild(div);
+                                });
+                                resultsContainer.style.display = 'block';
+                            } else {
+                                resultsContainer.style.display = 'none';
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                    }, 300); // Debounce delay
+                });
+
+                // Close results when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
+                        resultsContainer.style.display = 'none';
+                    }
+                });
+            }
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>

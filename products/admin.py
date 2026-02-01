@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Review
+from .models import Category, Product, Review, Carousel, Customer
 
 
 @admin.register(Category)
@@ -42,3 +42,15 @@ class ReviewAdmin(admin.ModelAdmin):
     list_filter = ['rating', 'created_at']
     search_fields = ['user__username', 'product__name', 'comment']
     readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(Carousel)
+class CarouselAdmin(admin.ModelAdmin):
+    list_display = ['title', 'order', 'status']
+    list_editable = ['order', 'status']
+
+
+@admin.register(Customer)
+class CustomerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'phone', 'email', 'date_created']
+    search_fields = ['name', 'phone', 'email']

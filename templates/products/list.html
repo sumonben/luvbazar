@@ -36,29 +36,30 @@
                             <div class="mb-4 mt-4">
                                 <h6>Price Range</h6>
                                 <div class="input-group input-group-sm mb-2">
-                                    <input type="number" class="form-control" name="min_price" placeholder="Min" id="minPrice">
-                                    <input type="number" class="form-control" name="max_price" placeholder="Max" id="maxPrice">
+                                    <input type="number" class="form-control" name="min_price" placeholder="Min" id="minPrice" value="{{ request.GET.min_price }}">
+                                    <input type="number" class="form-control" name="max_price" placeholder="Max" id="maxPrice" value="{{ request.GET.max_price }}">
                                 </div>
+                            </div>
+                            
+                            <!-- Ratings -->
+                            <div class="mb-4">
+                                <h6>Rating</h6>
+                                {% for i in "54321" %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="rating" value="{{ i }}" id="rating-{{ i }}"
+                                               {% if selected_rating == i %}checked{% endif %}>
+                                        <label class="form-check-label" for="rating-{{ i }}">
+                                            {% for star in "12345" %}
+                                                {% if forloop.counter <= i|add:"0" %}<i class="fas fa-star" style="color: #ffc107;"></i>{% endif %}
+                                            {% endfor %}
+                                            and above
+                                        </label>
+                                    </div>
+                                {% endfor %}
                             </div>
                             
                             <button type="submit" class="btn btn-sm btn-primary w-100">Apply Filters</button>
                         </form>
-                    </div>
-
-                    <!-- Ratings -->
-                    <div class="mb-4">
-                        <h6>Rating</h6>
-                        {% for i in "54321" %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="rating-{{ i }}" disabled title="Coming soon">
-                                <label class="form-check-label" for="rating-{{ i }}">
-                                    {% for star in "12345" %}
-                                        {% if forloop.counter <= i %}<i class="fas fa-star" style="color: #ffc107;"></i>{% endif %}
-                                    {% endfor %}
-                                    and above
-                                </label>
-                            </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -130,9 +131,15 @@
                                         </div>
                                         <a href="{% url 'product-detail' product.slug %}" class="btn btn-primary btn-sm mb-2">View Details</a>
                                         {% if product.stock > 0 %}
-                                            <button class="btn btn-outline-primary btn-sm w-100" onclick="addToCart({{ product.id }})">
-                                                <i class="fas fa-shopping-cart"></i> Add to Cart
-                                            </button>
+                                            {% if product.id in cart_product_ids %}
+                                                <button class="btn btn-primary btn-sm w-100" disabled>
+                                                    <i class="fas fa-check"></i> Added to Cart
+                                                </button>
+                                            {% else %}
+                                                <button class="btn btn-outline-primary btn-sm w-100 add-to-cart-btn" data-product-id="{{ product.id }}" onclick="addToCart({{ product.id }}, this)">
+                                                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                                                </button>
+                                            {% endif %}
                                         {% endif %}
                                     </div>
                                 </div>
@@ -184,4 +191,15 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterForm = document.getElementById('filterForm');
+            if (filterForm) {
+                filterForm.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('change', () => filterForm.submit());
+                });
+            }
+        });
+    </script>
 {% endblock %}

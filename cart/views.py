@@ -48,7 +48,10 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     cart = get_or_create_cart(request)
     
-    quantity = int(request.POST.get('quantity', 1))
+    try:
+        quantity = int(request.POST.get('quantity', 1))
+    except (ValueError, TypeError):
+        quantity = 1
     
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
@@ -60,34 +63,51 @@ def add_to_cart(request, product_id):
         cart_item.quantity += quantity
         cart_item.save()
     
-    messages.success(request, f'{product.name} added to cart!')
+    # Handle removal if quantity becomes zero or negative
+    if cart_item.quantity <= 0:
+        cart_item.delete()
+        msg = f'{product.name} removed from cart' if not created else 'Invalid quantity'
+        message_tag = 'error' if 'Invalid' in msg else 'info'
+        current_qty = 0
+    else:
+        msg = f'{product.name} added to cart!'
+        message_tag = 'success'
+        current_qty = cart_item.quantity
+    
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        if 'Invalid' in msg:
+            messages.error(request, msg)
+        else:
+            messages.success(request, msg)
     
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
-            'message': f'{product.name} added to cart',
-            'cart_count': cart.items.count(),
+            'message': msg,
+            'message_tag': message_tag,
+            'cart_count': cart.get_item_count(),
+            'item_quantity': current_qty,
         })
     
     return redirect('cart')
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def remove_from_cart(request, item_id):
     """Remove item from cart"""
-    cart_item = get_object_or_404(CartItem, id=item_id)
     cart = get_or_create_cart(request)
-    
-    if cart_item.cart == cart:
-        product_name = cart_item.product.name
-        cart_item.delete()
-        messages.success(request, f'{product_name} removed from cart')
+    cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
+    print(cart_item)
+    product_name = cart_item.product.name
+    cart_item.delete()
+    messages.success(request, f'{product_name} removed from cart')
     
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
-            'message': 'Item removed from cart',
-            'cart_count': cart.items.count(),
+            'message': f'{product_name} removed from cart',
+            'message_tag': 'warning',
+            'cart_count': cart.get_item_count(),
         })
     
     return redirect('cart')
@@ -96,24 +116,31 @@ def remove_from_cart(request, item_id):
 @require_http_methods(["POST"])
 def update_cart_item(request, item_id):
     """Update cart item quantity"""
-    cart_item = get_object_or_404(CartItem, id=item_id)
     cart = get_or_create_cart(request)
+    cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
     
-    if cart_item.cart == cart:
-        quantity = int(request.POST.get('quantity', 1))
-        
-        if quantity > 0:
-            cart_item.quantity = quantity
-            cart_item.save()
-            messages.success(request, 'Cart updated')
-        else:
-            cart_item.delete()
+    quantity = int(request.POST.get('quantity', 1))
+    
+    msg = 'Cart updated'
+    message_tag = 'success'
+    
+    if quantity > 0:
+        cart_item.quantity = quantity
+        cart_item.save()
+        messages.success(request, 'Cart updated')
+    else:
+        cart_item.delete()
+        msg = 'Item removed from cart'
+        message_tag = 'info'
     
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         total_price = sum(item.get_total_price() for item in cart.items.all())
         return JsonResponse({
             'status': 'success',
+            'message': msg,
+            'message_tag': message_tag,
             'total_price': total_price,
+            'cart_count': cart.get_item_count(),
         })
     
     return redirect('cart')
@@ -128,7 +155,6 @@ def clear_cart(request):
     return redirect('cart')
 
 
-@login_required(login_url='login')
 def checkout(request):
     """Checkout page"""
     cart = get_or_create_cart(request)
@@ -169,7 +195,7 @@ def checkout(request):
         total = subtotal + shipping_cost + tax
         
         order = Order.objects.create(
-            user=request.user,
+            user=request.user if request.user.is_authenticated else None,
             order_number=order_number,
             first_name=first_name,
             last_name=last_name,
@@ -219,12 +245,16 @@ def checkout(request):
     return render(request, 'checkout/checkout.html', context)
 
 
-@login_required(login_url='login')
 def order_confirmation(request, order_id):
     """Order confirmation page"""
     from orders.models import Order
     
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+    else:
+        order = get_object_or_404(Order, id=order_id)
+        if order.user:
+            return redirect('login')
     
     context = {
         'order': order,

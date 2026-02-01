@@ -6,7 +6,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .models import Category, Product, Review
+from .models import Category, Product, Review, Carousel
 from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, ReviewSerializer
 
 
@@ -83,10 +83,31 @@ def index(request):
     """Homepage view"""
     categories = Category.objects.all()[:5]
     featured_products = Product.objects.filter(status='active', rating__gte=4).order_by('-rating')[:12]
+    slides = Carousel.objects.filter(status='active')
+    
+    # Get cart product IDs
+    cart_product_ids = []
+    cart_quantities = {}
+    from cart.models import Cart
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_id = request.session.session_key
+        if session_id:
+            cart = Cart.objects.filter(session_id=session_id).first()
+        else:
+            cart = None
+            
+    if cart:
+        cart_product_ids = list(cart.items.values_list('product_id', flat=True))
+        cart_quantities = {item.product_id: item.quantity for item in cart.items.all()}
     
     context = {
         'categories': categories,
         'featured_products': featured_products,
+        'slides': slides,
+        'cart_product_ids': cart_product_ids,
+        'cart_quantities': cart_quantities,
     }
     return render(request, 'index.html', context)
 
@@ -115,6 +136,11 @@ def products_list(request):
     if max_price:
         products = products.filter(price__lte=max_price)
     
+    # Filter by rating
+    rating = request.GET.get('rating')
+    if rating:
+        products = products.filter(rating__gte=rating)
+    
     # Sort
     sort_by = request.GET.get('sort', '-created_at')
     if sort_by in ['-created_at', 'price', '-price', '-rating']:
@@ -125,11 +151,31 @@ def products_list(request):
     page = request.GET.get('page')
     products_page = paginator.get_page(page)
     
+    # Get cart product IDs
+    cart_product_ids = []
+    cart_quantities = {}
+    from cart.models import Cart
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_id = request.session.session_key
+        if session_id:
+            cart = Cart.objects.filter(session_id=session_id).first()
+        else:
+            cart = None
+            
+    if cart:
+        cart_product_ids = list(cart.items.values_list('product_id', flat=True))
+        cart_quantities = {item.product_id: item.quantity for item in cart.items.all()}
+    
     context = {
         'products': products_page,
         'categories': categories,
         'selected_category': category_slug,
         'search_query': search_query,
+        'selected_rating': rating,
+        'cart_product_ids': cart_product_ids,
+        'cart_quantities': cart_quantities,
     }
     return render(request, 'products/list.html', context)
 
@@ -143,10 +189,31 @@ def product_detail(request, slug):
         category=product.category
     ).exclude(id=product.id)[:4]
     
+    # Check if in cart
+    in_cart = False
+    cart_quantity = 0
+    from cart.models import Cart
+    
+    cart = None
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_id = request.session.session_key
+        if session_id:
+            cart = Cart.objects.filter(session_id=session_id).first()
+            
+    if cart:
+        cart_item = cart.items.filter(product=product).first()
+        if cart_item:
+            in_cart = True
+            cart_quantity = cart_item.quantity
+    
     context = {
         'product': product,
         'reviews': reviews,
         'related_products': related_products,
+        'in_cart': in_cart,
+        'cart_quantity': cart_quantity,
     }
     return render(request, 'products/detail.html', context)
 
@@ -166,6 +233,11 @@ def category_detail(request, slug):
     if max_price:
         products = products.filter(price__lte=max_price)
     
+    # Filter by rating
+    rating = request.GET.get('rating')
+    if rating:
+        products = products.filter(rating__gte=rating)
+    
     # Sort
     sort_by = request.GET.get('sort', '-created_at')
     if sort_by in ['-created_at', 'price', '-price', '-rating']:
@@ -180,6 +252,7 @@ def category_detail(request, slug):
         'category': category,
         'products': products_page,
         'categories': categories,
+        'selected_rating': rating,
     }
     return render(request, 'products/list.html', context)
 
@@ -235,3 +308,66 @@ def add_review(request, slug):
     messages.success(request, 'Thank you for your review!')
     
     return redirect('product-detail', slug=slug)
+
+def quick_view(request, slug):
+    """API endpoint for quick view modal"""
+    if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+        return JsonResponse({'error': 'Invalid request'}, status=400)
+
+    product = get_object_or_404(Product, slug=slug)
+    
+    # Get cart quantity
+    cart_quantity = 0
+    from cart.models import Cart
+    
+    cart = get_or_create_cart(request)
+    if cart:
+        cart_item = cart.items.filter(product=product).first()
+        if cart_item:
+            cart_quantity = cart_item.quantity
+
+    data = {
+        'id': product.id,
+        'name': product.name,
+        'price': float(product.price),
+        'description': product.description,
+        'image': product.image.url if product.image else '',
+        'rating': float(product.rating) if product.rating else 0,
+        'stock': product.stock,
+        'slug': product.slug,
+        'cart_quantity': cart_quantity,
+    }
+    return JsonResponse(data)
+
+def get_or_create_cart(request):
+    """Helper to get cart (duplicated from cart app for isolation if needed, or import)"""
+    from cart.models import Cart
+    if request.user.is_authenticated:
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+    else:
+        session_id = request.session.session_key
+        if not session_id:
+            return None
+        cart = Cart.objects.filter(session_id=session_id).first()
+    return cart
+
+def search_autocomplete(request):
+    """API endpoint for search autocomplete"""
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        query = request.GET.get('term', '')
+        if len(query) < 2:
+            return JsonResponse([], safe=False)
+        
+        products = Product.objects.filter(name__icontains=query, status='active')[:10]
+        results = []
+        for product in products:
+            results.append({
+                'id': product.id,
+                'label': product.name,
+                'value': product.name,
+                'url': product.get_absolute_url(),
+                'price': float(product.price),
+                'image': product.image.url if product.image else None,
+            })
+        return JsonResponse(results, safe=False)
+    return JsonResponse([], safe=False)
