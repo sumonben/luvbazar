@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Review, Carousel, Customer
+from .models import Category, Product, Review, Carousel, Customer, SiteSetting
 
 
 @admin.register(Category)
@@ -54,3 +54,12 @@ class CarouselAdmin(admin.ModelAdmin):
 class CustomerAdmin(admin.ModelAdmin):
     list_display = ['name', 'phone', 'email', 'date_created']
     search_fields = ['name', 'phone', 'email']
+
+
+@admin.register(SiteSetting)
+class SiteSettingAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        # Allow only one instance
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)

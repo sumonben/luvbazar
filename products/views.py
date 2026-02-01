@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
+from django.db.models import Prefetch
 from django.core.paginator import Paginator
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -81,7 +82,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 # Template views for frontend
 def index(request):
     """Homepage view"""
-    categories = Category.objects.all()[:5]
+    categories = Category.objects.prefetch_related(
+        Prefetch('products', queryset=Product.objects.filter(status='active'))
+    ).all()[:5]
     featured_products = Product.objects.filter(status='active', rating__gte=4).order_by('-rating')[:12]
     slides = Carousel.objects.filter(status='active')
     

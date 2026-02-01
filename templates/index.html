@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load cart_tags %}
 
 {% block title %}Home - Ecommerz{% endblock %}
@@ -15,9 +16,9 @@
             {% for slide in slides %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
                 {% if slide.image %}
-                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 40vh; object-fit: cover; filter: brightness(0.6);">
+                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 40vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
                 {% else %}
-                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 40vh; object-fit: cover; filter: brightness(0.6);">
+                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 40vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
                 {% endif %}
                 <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; bottom: 0;">
                     {% if slide.title %}
@@ -86,7 +87,7 @@
                         <!-- Product Image -->
                         <a href="{% url 'product-detail' product.slug %}">
                             {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;" loading="lazy">
                             {% else %}
                             <div class="d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
                                 <i class="fas fa-box fa-3x text-muted"></i>
@@ -143,6 +144,87 @@
             {% endfor %}
         </div>
 
+        <!-- Category Wise Products -->
+        {% for category in categories %}
+            {% if category.products.all %}
+            <div class="category-section mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-0">{{ category.name }}</h2>
+                    <a href="{% url 'products-list' %}?category={{ category.slug }}" class="btn btn-outline-primary btn-sm">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="owl-carousel owl-theme product-carousel">
+                    {% for product in category.products.all %}
+                        <div class="item p-2">
+                            <div class="card h-100 shadow-sm product-card position-relative">
+                                <!-- Quick View Button -->
+                                <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm quick-view-btn" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#quickViewModal" 
+                                        data-slug="{{ product.slug }}"
+                                        title="Quick View"
+                                        style="z-index: 10;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <!-- Product Image -->
+                                <a href="{% url 'product-detail' product.slug %}">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;" loading="lazy">
+                                    {% else %}
+                                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
+                                        <i class="fas fa-box fa-3x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </a>
+                                
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-truncate">
+                                        <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                                    </h5>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0 text-primary">${{ product.price }}</h5>
+                                        <div class="text-warning small">
+                                            <i class="fas fa-star"></i> {{ product.rating }}
+                                            <span class="text-muted">({{ product.reviews.count }})</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2">View Details</a>
+                                        {% if product.stock > 0 %}
+                                            <!-- Quantity Controls (Hidden if not in cart) -->
+                                            <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-cat-{{ product.id }}">
+                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="text" class="form-control form-control-sm text-center bg-white" 
+                                                       value="{{ cart_quantities|get_item:product.id|default:0 }}" 
+                                                       id="qty-input-cat-{{ product.id }}" readonly>
+                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Add to Cart Button (Hidden if in cart) -->
+                                            <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %}" 
+                                                    id="add-btn-cat-{{ product.id }}"
+                                                    data-id="{{ product.id }}">
+                                                Add to Cart
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
         <!-- Categories Section -->
         <div class="mt-5 pt-5 border-top">
             <h2 class="mb-4">Shop by Category</h2>
@@ -173,4 +255,56 @@
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+<style>
+    .owl-nav button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50% !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        color: #333 !important;
+        font-size: 20px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        z-index: 100;
+    }
+    .owl-nav button:hover {
+        background-color: #fff !important;
+        color: var(--primary-color) !important;
+    }
+    .owl-nav button.owl-prev { left: 0; }
+    .owl-nav button.owl-next { right: 0; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $(".product-carousel").owlCarousel({
+            loop: false,
+            margin: 10,
+            nav: true,
+            dots: false,
+            navText: ['<i class="fas fa-chevron-left"></i>', '<i class="fas fa-chevron-right"></i>'],
+            responsive:{
+                0:{ items:1 },
+                576:{ items:2 },
+                768:{ items:3 },
+                992:{ items:4 }
+            }
+        });
+    });
+</script>
 {% endblock %}

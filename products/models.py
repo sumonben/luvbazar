@@ -96,3 +96,20 @@ class Carousel(models.Model):
 
     def __str__(self):
         return self.title or f"Slide {self.id}"
+
+
+class SiteSetting(models.Model):
+    site_name = models.CharField(max_length=100, default='Ecommerz')
+    logo = models.ImageField(upload_to='site/', blank=True, null=True)
+    favicon = models.ImageField(upload_to='site/', blank=True, null=True)
+    site_caption = models.CharField(max_length=200, blank=True, default='Online Shopping')
+    phone = models.CharField(max_length=20, blank=True)
+    email = models.EmailField(blank=True)
+    address = models.TextField(blank=True)
+    facebook = models.URLField(blank=True)
+    twitter = models.URLField(blank=True)
+    instagram = models.URLField(blank=True)
+    footer_copyright = models.CharField(max_length=200, blank=True, default='All rights reserved.')
+
+    def __str__(self):
+        return self.site_name

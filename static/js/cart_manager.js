@@ -85,7 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // --- Optimistic UI Update Start ---
         const elementsToUpdate = [
             { group: `qty-group-${productId}`, btn: `add-btn-${productId}`, input: `qty-input-${productId}` },
-            { group: `qty-group-modal-${productId}`, btn: `add-btn-modal-${productId}`, input: `qty-input-modal-${productId}` }
+            { group: `qty-group-modal-${productId}`, btn: `add-btn-modal-${productId}`, input: `qty-input-modal-${productId}` },
+            { group: `qty-group-cat-${productId}`, btn: `add-btn-cat-${productId}`, input: `qty-input-cat-${productId}` }
         ];
 
         // 1. Update Item Quantity UI immediately

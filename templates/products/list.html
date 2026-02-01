@@ -103,7 +103,7 @@
                                 <div class="card product-card h-100">
                                     <div class="product-image">
                                         {% if product.image %}
-                                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; height: 250px; object-fit: cover;">
+                                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="width: 100%; height: 250px; object-fit: cover;" loading="lazy">
                                         {% else %}
                                             <i class="fas fa-box"></i>
                                         {% endif %}
