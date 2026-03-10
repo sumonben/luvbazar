@@ -8667,4 +8667,25 @@ return false;
 
 
 
+
+/* Cart Count Management */
+function updateCartCount() {
+    fetch('/cart/count/', {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const badges = document.querySelectorAll('.cart-badge, #cart-count');
+        badges.forEach(badge => {
+            badge.textContent = data.count;
+            badge.style.display = data.count > 0 ? 'inline-block' : 'none';
+        });
+    })
+    .catch(error => console.error('Error updating cart count:', error));
+}
+
+// Update count on page load
+document.addEventListener('DOMContentLoaded', updateCartCount);
     

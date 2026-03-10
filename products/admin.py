@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, Review, Carousel, Customer, SiteSetting
+from .models import Category, Product, Review, Carousel, Customer, SiteSetting, Room
 
 
 @admin.register(Category)
@@ -63,3 +63,29 @@ class SiteSettingAdmin(admin.ModelAdmin):
         if self.model.objects.exists():
             return False
         return super().has_add_permission(request)
+
+
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ['name', 'room_number', 'room_type', 'price_per_night', 'capacity', 'status', 'floor_number']
+    list_filter = ['status', 'room_type', 'floor_number']
+    search_fields = ['name', 'room_number', 'description']
+    list_editable = ['status']
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'room_number', 'room_type', 'description')
+        }),
+        ('Pricing & Capacity', {
+            'fields': ('price_per_night', 'capacity', 'size_sqft', 'floor_number')
+        }),
+        ('Amenities', {
+            'fields': ('has_wifi', 'has_ac', 'has_tv', 'has_balcony', 'has_kitchen', 'has_parking')
+        }),
+        ('Media', {
+            'fields': ('image',)
+        }),
+        ('Status', {
+            'fields': ('status',)
+        }),
+    )
+

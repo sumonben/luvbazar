@@ -98,6 +98,67 @@ class Carousel(models.Model):
         return self.title or f"Slide {self.id}"
 
 
+class Room(models.Model):
+    ROOM_TYPE_CHOICES = [
+        ('single', 'Single Room'),
+        ('double', 'Double Room'),
+        ('suite', 'Suite'),
+        ('deluxe', 'Deluxe Room'),
+        ('penthouse', 'Penthouse'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('occupied', 'Occupied'),
+        ('maintenance', 'Under Maintenance'),
+    ]
+    
+    name = models.CharField(max_length=200)
+    room_number = models.CharField(max_length=50, unique=True)
+    room_type = models.CharField(max_length=20, choices=ROOM_TYPE_CHOICES, default='single')
+    description = models.TextField()
+    price_per_night = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+    capacity = models.IntegerField(default=2, validators=[MinValueValidator(1)])
+    size_sqft = models.IntegerField(blank=True, null=True, help_text="Room size in square feet")
+    floor_number = models.IntegerField(default=1)
+    
+    # Amenities
+    has_wifi = models.BooleanField(default=True)
+    has_ac = models.BooleanField(default=True)
+    has_tv = models.BooleanField(default=True)
+    has_balcony = models.BooleanField(default=False)
+    has_kitchen = models.BooleanField(default=False)
+    has_parking = models.BooleanField(default=False)
+    
+    # Images
+    image = models.ImageField(upload_to='products/rooms/%Y/%m/%d/', null=True, blank=True)
+    
+    # Status
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['room_number']
+    
+    def __str__(self):
+        return f"{self.name} - {self.room_number}"
+    
+    def is_available(self):
+        return self.status == 'available'
+    
+    def get_amenities_list(self):
+        amenities = []
+        if self.has_wifi: amenities.append('WiFi')
+        if self.has_ac: amenities.append('Air Conditioning')
+        if self.has_tv: amenities.append('TV')
+        if self.has_balcony: amenities.append('Balcony')
+        if self.has_kitchen: amenities.append('Kitchen')
+        if self.has_parking: amenities.append('Parking')
+        return amenities
+
+
 class SiteSetting(models.Model):
     site_name = models.CharField(max_length=100, default='Ecommerz')
     logo = models.ImageField(upload_to='site/', blank=True, null=True)

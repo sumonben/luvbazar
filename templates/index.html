@@ -16,9 +16,9 @@
             {% for slide in slides %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
                 {% if slide.image %}
-                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 40vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
                 {% else %}
-                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 40vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
                 {% endif %}
                 <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; bottom: 0;">
                     {% if slide.title %}
@@ -34,7 +34,7 @@
             </div>
             {% empty %}
             <div class="carousel-item active">
-                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 40vh; object-fit: cover;">
+                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 50vh; object-fit: cover;">
             </div>
             {% endfor %}
         </div>
