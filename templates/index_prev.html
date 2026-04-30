@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load cart_tags %}
+
+{% block title %}Home - Ecommerz{% endblock %}
+
+{% block content %}
+    <!-- Carousel Section -->
+    <div id="homeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            {% for slide in slides %}
+            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for slide in slides %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if slide.image %}
+                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                {% else %}
+                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                {% endif %}
+                <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; bottom: 0;">
+                    {% if slide.title %}
+                    <h1 class="display-4 fw-bold">{{ slide.title }}</h1>
+                    {% endif %}
+                    {% if slide.sub_title %}
+                    <p class="lead">{{ slide.sub_title }}</p>
+                    {% endif %}
+                    {% if slide.action_text and slide.action_url %}
+                    <a href="{{ slide.action_url }}" class="btn btn-primary btn-lg mt-3">{{ slide.action_text }}</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="carousel-item active">
+                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 50vh; object-fit: cover;">
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+
+    <div class="container-lg py-5">
+        <!-- Features Section -->
+        <div class="row mb-5">
+            <div class="col-md-4 text-center">
+                <i class="fas fa-shipping-fast text-primary" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <h4>Fast Shipping</h4>
+                <p>Get your products delivered quickly and safely to your doorstep.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-undo text-primary" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <h4>Easy Returns</h4>
+                <p>30-day hassle-free returns on all products.</p>
+            </div>
+            <div class="col-md-4 text-center">
+                <i class="fas fa-lock text-primary" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <h4>Secure Payment</h4>
+                <p>Your payment information is always safe and secure.</p>
+            </div>
+        </div>
+
+        <!-- Featured Products Section -->
+        <h2 class="mb-4">Featured Products</h2>
+        <div class="row">
+            {% for product in featured_products %}
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="card h-100 shadow-sm product-card position-relative">
+                        <!-- Quick View Button -->
+                        <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm quick-view-btn" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#quickViewModal" 
+                                data-slug="{{ product.slug }}"
+                                title="Quick View"
+                                style="z-index: 10;">
+                            <i class="fas fa-eye"></i>
+                        </button>
+
+                        <!-- Product Image -->
+                        <a href="{% url 'product-detail' product.slug %}">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;" loading="lazy">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
+                                <i class="fas fa-box fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </a>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-truncate">
+                                <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                            </h5>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0 text-primary">&#2547;{{ product.price|floatformat:2 }}</h5>
+                                <div class="text-warning small">
+                                    <i class="fas fa-star"></i> {{ product.rating }}
+                                    <span class="text-muted">({{ product.reviews.count }})</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-auto">
+                                <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2">View Details</a>
+                                {% if product.stock > 0 %}
+                                    <!-- Quantity Controls (Hidden if not in cart) -->
+                                    <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="text" class="form-control form-control-sm text-center bg-white" 
+                                               value="{{ cart_quantities|get_item:product.id|default:0 }}" 
+                                               id="qty-input-{{ product.id }}" readonly>
+                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Add to Cart Button (Hidden if in cart) -->
+                                    <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %}" 
+                                            id="add-btn-{{ product.id }}"
+                                            data-id="{{ product.id }}">
+                                        Add to Cart
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <p class="text-center text-muted">No products available yet.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Category Wise Products -->
+        {% for category in categories %}
+            {% if category.products.all %}
+            <div class="category-section mt-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="mb-0">{{ category.name }}</h2>
+                    <a href="{% url 'products-list' %}?category={{ category.slug }}" class="btn btn-outline-primary btn-sm">View All <i class="fas fa-arrow-right"></i></a>
+                </div>
+                <div class="owl-carousel owl-theme product-carousel">
+                    {% for product in category.products.all %}
+                        <div class="item p-2">
+                            <div class="card h-100 shadow-sm product-card position-relative">
+                                <!-- Quick View Button -->
+                                <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm quick-view-btn" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#quickViewModal" 
+                                        data-slug="{{ product.slug }}"
+                                        title="Quick View"
+                                        style="z-index: 10;">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
+                                <!-- Product Image -->
+                                <a href="{% url 'product-detail' product.slug %}">
+                                    {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;" loading="lazy">
+                                    {% else %}
+                                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
+                                        <i class="fas fa-box fa-3x text-muted"></i>
+                                    </div>
+                                    {% endif %}
+                                </a>
+                                
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title text-truncate">
+                                        <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                                    </h5>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0 text-primary">${{ product.price }}</h5>
+                                        <div class="text-warning small">
+                                            <i class="fas fa-star"></i> {{ product.rating }}
+                                            <span class="text-muted">({{ product.reviews.count }})</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-auto">
+                                        <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2">View Details</a>
+                                        {% if product.stock > 0 %}
+                                            <!-- Quantity Controls (Hidden if not in cart) -->
+                                            <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-cat-{{ product.id }}">
+                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="text" class="form-control form-control-sm text-center bg-white" 
+                                                       value="{{ cart_quantities|get_item:product.id|default:0 }}" 
+                                                       id="qty-input-cat-{{ product.id }}" readonly>
+                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+
+                                            <!-- Add to Cart Button (Hidden if in cart) -->
+                                            <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %}" 
+                                                    id="add-btn-cat-{{ product.id }}"
+                                                    data-id="{{ product.id }}">
+                                                Add to Cart
+                                            </button>
+                                        {% else %}
+                                            <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Categories Section -->
+        <div class="mt-5 pt-5 border-top">
+            <h2 class="mb-4">Shop by Category</h2>
+            <div class="row">
+                {% for category in categories %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <a href="{% url 'category' category.slug %}" class="btn btn-outline-primary w-100 py-3">
+                            <i class="fas fa-folder"></i> {{ category.name }}
+                            <span class="badge bg-primary ms-2">{{ category.products.count }}</span>
+                        </a>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <p class="text-center text-muted">No categories available yet.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div class="mt-5 pt-5 bg-light rounded p-4 text-center">
+            <h3>Subscribe to Our Newsletter</h3>
+            <p>Get exclusive offers and updates delivered to your inbox!</p>
+            <form method="post" class="d-flex justify-content-center gap-2">
+                {% csrf_token %}
+                <input type="email" class="form-control" style="max-width: 300px;" placeholder="Enter your email" required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+<style>
+    .owl-nav button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50% !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        color: #333 !important;
+        font-size: 20px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        z-index: 100;
+    }
+    .owl-nav button:hover {
+        background-color: #fff !important;
+        color: var(--primary-color) !important;
+    }
+    .owl-nav button.owl-prev { left: 0; }
+    .owl-nav button.owl-next { right: 0; }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $(".product-carousel").owlCarousel({
+            loop: false,
+            margin: 10,
+            nav: true,
+            dots: false,
+            navText: ['<i class="fas fa-chevron-left"></i>', '<i class="fas fa-chevron-right"></i>'],
+            responsive:{
+                0:{ items:1 },
+                576:{ items:2 },
+                768:{ items:3 },
+                992:{ items:4 }
+            }
+        });
+    });
+</script>
+{% endblock %}

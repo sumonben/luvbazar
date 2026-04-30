@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.db.models import Prefetch
 from django.core.paginator import Paginator
@@ -9,7 +9,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Category, Product, Review, Carousel
 from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, ReviewSerializer
-
+from django.template.loader import render_to_string
+# from weasyprint import HTML
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.all()
@@ -81,7 +82,17 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 # Template views for frontend
 def index(request):
-    """Homepage view"""
+    # """Homepage view"""
+    # html_string = render_to_string('my_template.html', {'context_var': 'value'})
+
+    # # Convert HTML string to PDF
+    # html = HTML(string=html_string)
+    # pdf = html.write_pdf()
+
+    # # Return as HTTP response
+    # response = HttpResponse(pdf, content_type='application/pdf')
+    # response['Content-Disposition'] = 'inline; filename="report.pdf"'
+    # return response
     categories = Category.objects.prefetch_related(
         Prefetch('products', queryset=Product.objects.filter(status='active'))
     ).all()[:5]

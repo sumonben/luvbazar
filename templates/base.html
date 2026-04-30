@@ -407,7 +407,7 @@
                 </ul>
                 <!-- Search Form -->
                 <form class="d-flex mx-auto position-relative" action="{% url 'products-list' %}" method="GET" style="width: 100%; max-width: 500px;">
-                    <input class="form-control me-2" type="search" name="search" id="search-input" placeholder="Search products..." aria-label="Search" autocomplete="off" value="{{ search_query|default:'' }}">
+                    <input class="form-control me-2" type="search" name="search" id="search-input" placeholder="Search products..." aria-label="Search" autocomplete="off">
                     <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
                     <!-- Autocomplete Results Container -->
                     <div id="search-results" class="position-absolute w-100 bg-white shadow rounded" style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
