@@ -5,6 +5,91 @@
 {% block title %}Home - Ecommerz{% endblock %}
 
 {% block content %}
+    
+
+    <section style="background-image: url('/static/images/banner-1.jpg');background-repeat: no-repeat;background-size: cover;">
+      <div class="container-lg">
+        <div class="row">
+          <div class="col-lg-6 pt-5 mt-5">
+            <h2><span class="fw-bold text-primary">Organic</span> Foods at your <span class="fw-bold">Doorsteps</span></h2>
+            <p class="fs-4">Dignissim massa diam elementum.</p>
+            <div class="d-flex gap-3">
+              <a href="#" class="btn btn-primary text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Start Shopping</a>
+              <a href="#" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Join Now</a>
+            </div>
+            <div class="row my-5">
+              <div class="col">
+                <div class="row text-dark">
+                  <div class="col-auto"><p class="fs-1 fw-bold lh-sm mb-0">14k+</p></div>
+                  <div class="col"><p class="text-uppercase lh-sm mb-0">Product Varieties</p></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="row text-dark">
+                  <div class="col-auto"><p class="fs-1 fw-bold lh-sm mb-0">50k+</p></div>
+                  <div class="col"><p class="text-uppercase lh-sm mb-0">Happy Customers</p></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="row text-dark">
+                  <div class="col-auto"><p class="fs-1 fw-bold lh-sm mb-0">10+</p></div>
+                  <div class="col"><p class="text-uppercase lh-sm mb-0">Store Locations</p></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-3 g-0 justify-content-center">
+          <div class="col">
+            <div class="card border-0 bg-primary rounded-0 p-4 text-light">
+              <div class="row">
+                <div class="col-md-3 text-center">
+                  <svg width="60" height="60"><use xlink:href="#fresh"></use></svg>
+                </div>
+                <div class="col-md-9">
+                  <div class="card-body p-0">
+                    <h5 class="text-light">Fresh from farm</h5>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card border-0 bg-secondary rounded-0 p-4 text-light">
+              <div class="row">
+                <div class="col-md-3 text-center">
+                  <svg width="60" height="60"><use xlink:href="#organic"></use></svg>
+                </div>
+                <div class="col-md-9">
+                  <div class="card-body p-0">
+                    <h5 class="text-light">100% Organic</h5>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card border-0 bg-danger rounded-0 p-4 text-light">
+              <div class="row">
+                <div class="col-md-3 text-center">
+                  <svg width="60" height="60"><use xlink:href="#delivery"></use></svg>
+                </div>
+                <div class="col-md-9">
+                  <div class="card-body p-0">
+                    <h5 class="text-light">Free delivery</h5>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+      </div>
+    </section>
     <!-- Carousel Section -->
     <div id="homeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
         <div class="carousel-indicators">
@@ -48,9 +133,50 @@
         </button>
     </div>
 
+
+        <section class="py-5 overflow-hidden">
+      <div class="container-lg">
+        <div class="row">
+          <div class="col-md-12">
+
+            <div class="section-header d-flex flex-wrap justify-content-between mb-5">
+              <h2 class="section-title">Category</h2>
+
+              <div class="d-flex align-items-center">
+                <a href="#" class="btn btn-primary me-2">View All</a>
+                <div class="swiper-buttons">
+                  <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
+                  <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+
+            <div class="category-carousel swiper">
+              <div class="swiper-wrapper" style="display:inline-block">
+                {% for category in categories %}
+                <a href="{% url 'category' category.slug %}"  style="display:inline-block;padding:2px;">
+                  <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/category-thumb-1.jpg' %}{% endif %}" class="rounded-circle" alt="{{ category.name }}" title="{{ category.name }}">
+                  <h4 class="fs-6 mt-3 fw-normal category-title">{{ category.name }}</h4>
+                </a>
+                {% endfor %}
+               
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+
     <div class="container-lg py-5">
         <!-- Features Section -->
-        <div class="row mb-5">
+        {% comment %} <div class="row mb-5">
             <div class="col-md-4 text-center">
                 <i class="fas fa-shipping-fast text-primary" style="font-size: 3rem; margin-bottom: 15px;"></i>
                 <h4>Fast Shipping</h4>
@@ -66,7 +192,7 @@
                 <h4>Secure Payment</h4>
                 <p>Your payment information is always safe and secure.</p>
             </div>
-        </div>
+        </div> {% endcomment %}
 
         <!-- Featured Products Section -->
         <h2 class="mb-4">Featured Products</h2>
@@ -290,6 +416,7 @@
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
 <script>
     $(document).ready(function(){
         $(".product-carousel").owlCarousel({

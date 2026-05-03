@@ -360,14 +360,14 @@ input[type=number]::-webkit-outer-spin-button {
    opacity: 1;
 }
 .product-item .button-area .quantity {
-  padding: 0.2rem;
+  padding: 0.5rem;
 }
 .product-item .button-area {
   display: none;
   position: absolute;
   text-align: center;
   background: #fff;
-  width: 50%;
+  width: 100%;
   left: 0;
   bottom: -55px;
   z-index: 1;
@@ -439,7 +439,6 @@ input[type=number]::-webkit-outer-spin-button {
   .image-float {
     margin: 0;
   }
-  
 }
  /* post item */
 .post-item .post-meta {

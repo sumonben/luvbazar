@@ -123,7 +123,7 @@ def index(request):
         'cart_product_ids': cart_product_ids,
         'cart_quantities': cart_quantities,
     }
-    return render(request, 'index.html', context)
+    return render(request, 'index_prev.html', context)
 
 
 def products_list(request):
