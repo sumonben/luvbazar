@@ -28,8 +28,8 @@ def cart_view(request):
     cart_total = sum(item.get_total_price() for item in cart_items) or 0
     total_items = sum(item.quantity for item in cart_items)
     cart_total_float = float(cart_total)
-    tax_total = round(cart_total_float * 0.08, 2)  # 8% tax
-    order_total = round(cart_total_float + tax_total, 2)
+    tax_total = 0  # No tax
+    order_total = round(cart_total_float + 20, 2)  # Add 20 TK shipping
     
     context = {
         'cart': cart,
@@ -190,8 +190,8 @@ def checkout(request):
         
         # Calculate totals
         subtotal = float(total_price)
-        shipping_cost = 0  # Free shipping
-        tax = round(subtotal * 0.08, 2)  # 8% tax
+        shipping_cost = 20  # 20 TK shipping
+        tax = 0  # No tax
         total = subtotal + shipping_cost + tax
         
         order = Order.objects.create(
