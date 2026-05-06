@@ -7,7 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
-    <title>{% block title %}Ecommerz - Online Shopping{% endblock %}</title>
+    <title>{% block title %}{{ settings.site_name }}{% endblock %}</title>
     {% if settings.favicon %}
         <link rel="shortcut icon" href="{{ settings.favicon.url }}">
     {% endif %}
@@ -498,7 +498,7 @@
         <div class="container-lg">
             <a class="navbar-brand" href="{% url 'home' %}">
                 {% if settings.logo %}
-                    <img src="{{ settings.logo.url }}" alt="{{ settings.site_name }}" height="40" class="d-inline-block align-text-top me-2">
+                    <img src="{{ settings.logo.url }}" alt="{{ settings.site_name }}" height="60" >
                 {% else %}
                     <i class="fas fa-shopping-bag me-2"></i>
                 {% endif %}
@@ -513,15 +513,19 @@
             </button>
             <div class="search-bar row bg-light p-2 rounded-4" style="margin-left:20%">
               <div class="col-md-4 d-none d-md-block">
-                <select class="form-select border-0 bg-transparent">
-                  <option>All</option>
-                   {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name|safe }}</option> 
-                   {% endfor %}
-                  <option>Groceries</option>
-                  <option>Drinks</option>
-                  <option>Chocolates</option>
-                </select>
+                <form  action="/products/" method="GET" class="d-flex align-items-center">
+                        <select class="form-select" id="categorySelect" name="category" style="max-width: 250px;" onchange="this.form.submit()">
+                            <option value="">All </option>
+                            {% for category in categories %}
+                                <option value="{{ category.slug }}" {% if category.slug == selected_category %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+
+                        <!-- Price Range -->
+                       
+                    </form>
               </div>
               <div class="col-11 col-md-7" >
  <!-- Search Form -->
@@ -552,7 +556,7 @@
                     </li> {% endcomment %}
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="{% url 'cart' %}">
-                                              <svg width="24" height="24"><use xlink:href="#shopping-bag"></use></svg>
+                                              <svg width="30" height="30"><use xlink:href="#shopping-bag"></use></svg>
 
                             <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge {% if not cart_item_count or cart_item_count == 0 %}d-none{% endif %}">
                                 {{ cart_item_count|default:0 }}
@@ -738,6 +742,14 @@
     <!-- Cart Manager JS -->
     <script src="{% static 'js/cart_manager.js' %}"></script>
     <!-- Custom JS -->
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filterForm = document.getElementById('categorySelect');
+            if (filterForm) {
+                filterForm.addEventListener('change', () => filterForm.form.submit());
+            }
+        });
+    </script>
     <script>
         // Add to cart function
         function addToCart(productId, btn) {
@@ -848,7 +860,7 @@
                                         ${item.image ? `<img src="${item.image}" style="width: 40px; height: 40px; object-fit: cover; margin-right: 10px;" class="rounded">` : '<div style="width: 40px; height: 40px; background: #eee; margin-right: 10px;" class="rounded d-flex align-items-center justify-content-center"><i class="fas fa-image text-muted"></i></div>'}
                                         <div>
                                             <div class="fw-bold text-dark" style="font-size: 0.9rem;">${item.label}</div>
-                                            <div class="small text-primary">$${item.price.toFixed(2)}</div>
+                                            <div class="small text-primary">&#2547;${item.price.toFixed(2)}</div>
                                         </div>
                                     `;
                                     div.addEventListener('click', () => {

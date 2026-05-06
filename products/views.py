@@ -366,22 +366,27 @@ def get_or_create_cart(request):
     return cart
 
 def search_autocomplete(request):
-    """API endpoint for search autocomplete"""
-    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-        query = request.GET.get('term', '')
-        if len(query) < 2:
-            return JsonResponse([], safe=False)
-        
-        products = Product.objects.filter(name__icontains=query, status='active')[:10]
-        results = []
-        for product in products:
-            results.append({
-                'id': product.id,
-                'label': product.name,
-                'value': product.name,
-                'url': product.get_absolute_url(),
-                'price': float(product.price),
-                'image': product.image.url if product.image else None,
-            })
-        return JsonResponse(results, safe=False)
-    return JsonResponse([], safe=False)
+    """API endpoint for search autocomplete suggestions"""
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    # Search in products
+    products = Product.objects.filter(
+        name__icontains=query, 
+        status='active'
+    ).select_related('category')[:8]
+    
+    results = []
+    for product in products:
+        results.append({
+            'id': product.id,
+            'name': product.name,
+            'category': product.category.name if product.category else 'Uncategorized',
+            'url': product.get_absolute_url(),
+            'price': float(product.price),
+            'image': product.image.url if product.image else None,
+        })
+    
+    return JsonResponse({'results': results})

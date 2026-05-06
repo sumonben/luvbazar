@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Order Details - {{ order.order_number }} | Ecommerz{% endblock %}
+{% block title %}Order Details - {{ order.order_number }} | {{ settings.site_name }}{% endblock %}
 
 {% block content %}
     <div class="container py-5">
@@ -151,9 +151,9 @@
                                                 {{ item.product.name }}
                                             </a>
                                         </td>
-                                        <td>${{ item.price|floatformat:2 }}</td>
+                                        <td>&#2547;{{ item.price|floatformat:2 }}</td>
                                         <td>{{ item.quantity }}</td>
-                                        <td><strong>${{ item.get_total_price|floatformat:2 }}</strong></td>
+                                        <td><strong>&#2547;{{ item.get_total_price|floatformat:2 }}</strong></td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -189,24 +189,24 @@
                     <div class="card-body">
                         <div class="mb-2 d-flex justify-content-between">
                             <span>Subtotal:</span>
-                            <span>${{ order.subtotal|floatformat:2 }}</span>
+                            <span>&#2547;{{ order.subtotal|floatformat:2 }}</span>
                         </div>
 
                         <div class="mb-2 d-flex justify-content-between">
                             <span>Shipping:</span>
-                            <span>${{ order.shipping_cost|floatformat:2 }}</span>
+                            <span>&#2547;{{ order.shipping_cost|floatformat:2 }}</span>
                         </div>
 
                         <div class="mb-3 d-flex justify-content-between">
                             <span>Tax:</span>
-                            <span>${{ order.tax|floatformat:2 }}</span>
+                            <span>&#2547;{{ order.tax|floatformat:2 }}</span>
                         </div>
 
                         <hr>
 
                         <div class="d-flex justify-content-between align-items-center">
                             <strong>Total:</strong>
-                            <strong class="fs-5" style="color: #28a745;">${{ order.total|floatformat:2 }}</strong>
+                            <strong class="fs-5" style="color: #28a745;">&#2547;{{ order.total|floatformat:2 }}</strong>
                         </div>
                     </div>
                 </div>

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Shopping Cart - Ecommerz{% endblock %}
+{% block title %}Shopping Cart - {{ settings.site_name }}{% endblock %}
 
 {% block content %}
     <div class="container-lg py-5">
@@ -26,10 +26,10 @@
                                         </div>
                                         <div class="col-md-4">
                                             <h6><a href="{% url 'product-detail' item.product.slug %}" style="text-decoration: none; color: inherit;">{{ item.product.name }}</a></h6>
-                                            <p class="text-muted mb-0">SKU: PROD-{{ item.product.id }}</p>
+                                            <p class="text-muted mb-0">{{item.product.category.name}}: C{{item.product.category.id}}-P{{ item.product.id }}</p>
                                         </div>
                                         <div class="col-md-2">
-                                            <p class="mb-0">${{ item.product.price }}</p>
+                                            <p class="mb-0">&#2547;{{ item.product.price }}</p>
                                         </div>
                                         <div class="col-md-2">
                                             <div class="input-group" style="width: 100px;">
@@ -39,7 +39,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-2">
-                                            <p class="mb-0 fw-bold">${{ item.get_total_price }}</p>
+                                            <p class="mb-0 fw-bold">&#2547;{{ item.get_total_price }}</p>
                                         </div>
                                         <div class="col-md-1">
                                             <a href="{% url 'remove-from-cart' item.id %}" class="btn btn-sm btn-danger" title="Remove item">
@@ -75,7 +75,7 @@
                             <div class="mb-3 pb-3 border-bottom">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>${{ cart_total }}</span>
+                                    <span>&#2547;{{ cart_total }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Shipping:</span>
@@ -83,7 +83,7 @@
                                 </div>
                                 <div class="d-flex justify-content-between">
                                     <span>Tax:</span>
-                                    <span>${{ tax_total }}</span>
+                                    <span>&#2547;{{ tax_total }}</span>
                                 </div>
                             </div>
 

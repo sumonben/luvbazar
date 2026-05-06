@@ -67,6 +67,299 @@
             width: 80%;
         }
 
+        /* Carousel Navigation Buttons */
+        .carousel-nav-btn {
+            width: 44px !important;
+            height: 44px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 50% !important;
+            border: 2px solid var(--bs-warning);
+            background-color: #fff !important;
+            color: var(--bs-warning) !important;
+            transition: all 0.3s ease !important;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .carousel-nav-btn:hover:not(.disabled) {
+            background-color: var(--bs-warning) !important;
+            color: #fff !important;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-nav-btn:active:not(.disabled) {
+            transform: scale(0.95);
+        }
+
+        .carousel-nav-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            border-color: #ccc;
+            color: #999 !important;
+        }
+
+        .carousel-nav-btn.disabled:hover {
+            background-color: #fff !important;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .swiper-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* ========== Search Bar Styling ========== */
+        .search-wrapper {
+            width: 100%;
+        }
+
+        .search-form {
+            width: 100%;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #fff;
+            border-radius: 50px;
+            padding: 6px 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .search-container:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            border-color: var(--bs-primary);
+        }
+
+        .search-container:focus-within {
+            box-shadow: 0 4px 20px rgba(107, 178, 82, 0.25);
+            border-color: var(--bs-primary);
+            outline: none;
+        }
+
+        /* Category Dropdown */
+        .search-category {
+            background: transparent;
+            border: none;
+            border-right: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            padding-right: 8px;
+            color: #666;
+            font-size: 0.95rem;
+            cursor: pointer;
+            outline: none;
+            transition: color 0.3s ease;
+            min-width: 120px;
+        }
+
+        .search-category:hover {
+            color: var(--bs-primary);
+        }
+
+        .search-category:focus {
+            color: var(--bs-primary);
+        }
+
+        .search-category option {
+            padding: 8px;
+            color: #333;
+        }
+
+        /* Search Input Wrapper */
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        /* Search Icon */
+        .search-icon {
+            color: #999;
+            flex-shrink: 0;
+            transition: color 0.3s ease;
+        }
+
+        .search-container:focus-within .search-icon {
+            color: var(--bs-primary);
+        }
+
+        /* Search Input */
+        .search-input {
+            border: none;
+            background: transparent;
+            padding: 8px 0;
+            outline: none;
+            font-size: 0.95rem;
+            width: 100%;
+            color: #333;
+        }
+
+        .search-input::placeholder {
+            color: #aaa;
+        }
+
+        .search-input:focus {
+            outline: none;
+        }
+
+        .search-input:focus::placeholder {
+            color: #ccc;
+        }
+
+        /* Clear Button */
+        .search-clear {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: #ccc;
+            display: none;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .search-input:not(:placeholder-shown) ~ .search-clear {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-clear:hover {
+            color: #999;
+            transform: rotate(90deg);
+        }
+
+        /* Search Button */
+        .search-btn {
+            background: var(--bs-primary);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .search-btn:hover {
+            background: #5fa042;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(107, 178, 82, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Search Suggestions */
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .search-suggestion-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-suggestion-item:hover {
+            background: #f9f9f9;
+        }
+
+        .search-suggestion-item:active {
+            background: var(--bs-primary-bg-subtle);
+        }
+
+        .search-suggestion-icon {
+            color: #999;
+            flex-shrink: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 991px) {
+            .search-category {
+                display: none;
+            }
+
+            .search-category:not([style*="display: none"]) + .search-input-wrapper {
+                margin-left: 0;
+            }
+
+            .search-container {
+                padding: 8px 12px;
+            }
+
+            .search-btn {
+                padding: 8px 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-container {
+                border-radius: 30px;
+                padding: 6px 10px;
+                gap: 6px;
+            }
+
+            .search-input {
+                font-size: 0.9rem;
+                padding: 6px 0;
+            }
+
+            .search-btn {
+                padding: 6px 10px;
+            }
+
+            .search-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+
+            .search-icon {
+                width: 18px;
+                height: 18px;
+            }
+
+            .search-suggestions {
+                max-height: 300px;
+            }
+        }
+
         {% comment %} .cart-badge {
             position: absolute;
             top: -8px;
@@ -359,29 +652,52 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="col-sm-6 offset-sm-2 offset-md-0 col-lg-4" style="float:right;margin-left:20%">
-            <div class="search-bar row bg-light p-2 rounded-4">
-              <div class="col-md-4 d-none d-md-block">
-                <select class="form-select border-0 bg-transparent">
-                  <option>All</option>
-                   {% for category in categories %}
-                    <option value="{{ category.id }}">{{ category.name|safe }}</option> 
-                   {% endfor %}
-                  <option>Groceries</option>
-                  <option>Drinks</option>
-                  <option>Chocolates</option>
-                </select>
-              </div>
-              <div class="col-11 col-md-7">
-
-                <form class="d-flex mx-auto position-relative" action="{% url 'products-list' %}" method="GET" style="width: 100%; max-width: 500px;">
-                    <input class="form-control me-2" type="search" name="search" id="search-input" placeholder="Search products..." aria-label="Search" autocomplete="off" value="{{ search_query|default:'' }}">
-                    <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/></svg></button>
-                    <!-- Autocomplete Results Container -->
-                </form>
-
-              </div>
-              
+            <div class="col-12 col-md-6 col-lg-5">
+            <div class="search-wrapper">
+              <form class="search-form" action="{% url 'products-list' %}" method="GET">
+                <div class="search-container">
+                  
+                  <!-- Category Dropdown -->
+                  <select class="search-category" name="category" id="search-category">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                      <option value="{{ category.slug }}">{{ category.name|safe }}</option> 
+                    {% endfor %}
+                  </select>
+                  
+                  <!-- Search Input -->
+                  <div class="search-input-wrapper">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input 
+                      class="search-input" 
+                      type="search" 
+                      name="search" 
+                      id="search-input" 
+                      placeholder="Search products, categories..." 
+                      autocomplete="off" 
+                      value="{{ search_query|default:'' }}">
+                    <button class="search-clear" type="reset" aria-label="Clear search">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Search Button -->
+                  <button class="search-btn" type="submit" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M21.71 20.29L18 16.61A9 9 0 1 0 16.61 18l3.68 3.68a1 1 0 0 0 1.42 0a1 1 0 0 0 0-1.39ZM11 18a7 7 0 1 1 7-7a7 7 0 0 1-7 7Z"/>
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Search Suggestions/Results Container -->
+                <div class="search-suggestions" id="search-suggestions" style="display: none;"></div>
+              </form>
             </div>
           </div>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav" style="float:right">

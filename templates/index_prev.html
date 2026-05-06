@@ -2,7 +2,7 @@
 {% load static %}
 {% load cart_tags %}
 
-{% block title %}Home - Ecommerz{% endblock %}
+{% block title %}{{ settings.site_name }}{% endblock %}
 
 {% block content %}
     
@@ -119,7 +119,7 @@
             </div>
             {% empty %}
             <div class="carousel-item active">
-                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 50vh; object-fit: cover;">
+                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 50vh; object-fit: cover;" loading="lazy">
             </div>
             {% endfor %}
         </div>
@@ -143,7 +143,7 @@
               <h2 class="section-title">Category</h2>
 
               <div class="d-flex align-items-center">
-                <a href="#" class="btn btn-primary me-2">View All</a>
+                <a href="{% url 'products-list' %}" class="btn btn-primary me-2">View All</a>
                 <div class="swiper-buttons">
                   <button class="swiper-prev category-carousel-prev btn btn-yellow">❮</button>
                   <button class="swiper-next category-carousel-next btn btn-yellow">❯</button>
@@ -157,14 +157,15 @@
           <div class="col-md-12">
 
             <div class="category-carousel swiper">
-              <div class="swiper-wrapper" style="display:inline-block">
+              <div class="swiper-wrapper">
                 {% for category in categories %}
-                <a href="{% url 'category' category.slug %}"  style="display:inline-block;padding:2px;">
-                  <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/category-thumb-1.jpg' %}{% endif %}" class="rounded-circle" alt="{{ category.name }}" title="{{ category.name }}">
-                  <h4 class="fs-6 mt-3 fw-normal category-title">{{ category.name }}</h4>
-                </a>
+                <div class="swiper-slide">
+                  <a href="{% url 'category' category.slug %}" class="text-center text-decoration-none d-block">
+                    <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/category-thumb-1.jpg' %}{% endif %}" class="rounded-circle" alt="{{ category.name }}" title="{{ category.name }}" style="width: 120px; height: 120px; object-fit: cover;">
+                    <h4 class="fs-6 mt-3 fw-normal category-title text-dark">{{ category.name }}</h4>
+                  </a>
+                </div>
                 {% endfor %}
-               
               </div>
             </div>
 
@@ -309,7 +310,7 @@
                                     </h5>
                                     
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="mb-0 text-primary">${{ product.price }}</h5>
+                                        <h5 class="mb-0 text-primary">&#2547;{{ product.price }}</h5>
                                         <div class="text-warning small">
                                             <i class="fas fa-star"></i> {{ product.rating }}
                                             <span class="text-muted">({{ product.reviews.count }})</span>
@@ -386,6 +387,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
 <style>
     .owl-nav button {
         position: absolute;
@@ -410,12 +412,93 @@
     }
     .owl-nav button.owl-prev { left: 0; }
     .owl-nav button.owl-next { right: 0; }
+    
+    /* Swiper Category Carousel Styles */
+    .category-carousel {
+        position: relative;
+        padding: 20px 0;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .category-carousel .swiper-slide {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        padding: 0 15px;
+    }
+    
+    .category-carousel .swiper-slide a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .category-carousel .swiper-slide a:hover {
+        transform: translateY(-10px);
+    }
+    
+    .category-carousel .swiper-slide img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .category-carousel .swiper-slide img:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .swiper-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .category-carousel-prev,
+    .category-carousel-next {
+        position: relative !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background-color: #ffc107 !important;
+        color: #333 !important;
+        border: none !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+    }
+    
+    .category-carousel-prev:hover,
+    .category-carousel-next:hover {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+        transform: scale(1.1);
+    }
+    
+    .category-carousel-prev:disabled,
+    .category-carousel-next:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
 </style>
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script>
     $(document).ready(function(){
@@ -430,6 +513,50 @@
                 576:{ items:2 },
                 768:{ items:3 },
                 992:{ items:4 }
+            }
+        });
+        
+        // Initialize Category Carousel with Swiper
+        const categorySwiper = new Swiper('.category-carousel', {
+            slidesPerView: 'auto',
+            spaceBetween: 20,
+            freeMode: true,
+            loop: false,
+            grabCursor: true,
+            touchEventsTarget: 'wrapper',
+            allowTouchMove: true,
+            touchRatio: 1,
+            touchAngle: 45,
+            simulateTouch: true,
+            navigation: {
+                nextEl: '.category-carousel-next',
+                prevEl: '.category-carousel-prev',
+            },
+            keyboard: {
+                enabled: true,
+                onlyInViewport: false,
+            },
+            breakpoints: {
+                320: {
+                    spaceBetween: 10,
+                    slidesPerView: 2
+                },
+                576: {
+                    spaceBetween: 15,
+                    slidesPerView: 3
+                },
+                768: {
+                    spaceBetween: 20,
+                    slidesPerView: 4
+                },
+                992: {
+                    spaceBetween: 20,
+                    slidesPerView: 5
+                },
+                1200: {
+                    spaceBetween: 25,
+                    slidesPerView: 6
+                }
             }
         });
     });
