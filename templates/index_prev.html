@@ -90,48 +90,6 @@
       
       </div>
     </section>
-    <!-- Carousel Section -->
-    <div id="homeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            {% for slide in slides %}
-            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
-            {% endfor %}
-        </div>
-        <div class="carousel-inner">
-            {% for slide in slides %}
-            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                {% if slide.image %}
-                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
-                {% else %}
-                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
-                {% endif %}
-                <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; bottom: 0;">
-                    {% if slide.title %}
-                    <h1 class="display-4 fw-bold">{{ slide.title }}</h1>
-                    {% endif %}
-                    {% if slide.sub_title %}
-                    <p class="lead">{{ slide.sub_title }}</p>
-                    {% endif %}
-                    {% if slide.action_text and slide.action_url %}
-                    <a href="{{ slide.action_url }}" class="btn btn-primary btn-lg mt-3">{{ slide.action_text }}</a>
-                    {% endif %}
-                </div>
-            </div>
-            {% empty %}
-            <div class="carousel-item active">
-                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 50vh; object-fit: cover;" loading="lazy">
-            </div>
-            {% endfor %}
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
 
 
         <section class="py-5 overflow-hidden">
@@ -229,8 +187,14 @@
                             
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h5 class="mb-0 text-primary">&#2547;{{ product.price|floatformat:2 }}</h5>
-                                <div class="text-warning small">
-                                    <i class="fas fa-star"></i> {{ product.rating }}
+                                <div class="product-rating text-warning small">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
                                     <span class="text-muted">({{ product.reviews.count }})</span>
                                 </div>
                             </div>
@@ -270,6 +234,48 @@
                 </div>
             {% endfor %}
         </div>
+    <!-- Carousel Section -->
+    <div id="homeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            {% for slide in slides %}
+            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for slide in slides %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if slide.image %}
+                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                {% else %}
+                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                {% endif %}
+                <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; bottom: 0;">
+                    {% if slide.title %}
+                    <h1 class="display-4 fw-bold">{{ slide.title }}</h1>
+                    {% endif %}
+                    {% if slide.sub_title %}
+                    <p class="lead">{{ slide.sub_title }}</p>
+                    {% endif %}
+                    {% if slide.action_text and slide.action_url %}
+                    <a href="{{ slide.action_url }}" class="btn btn-primary btn-lg mt-3">{{ slide.action_text }}</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="carousel-item active">
+                <img src="https://via.placeholder.com/1200x500?text=No+Slides+Available" class="d-block w-100" alt="No Slides" style="height: 50vh; object-fit: cover;" loading="lazy">
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
 
         <!-- Category Wise Products -->
         {% for category in categories %}
@@ -311,8 +317,14 @@
                                     
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <h5 class="mb-0 text-primary">&#2547;{{ product.price }}</h5>
-                                        <div class="text-warning small">
-                                            <i class="fas fa-star"></i> {{ product.rating }}
+                                        <div class="product-rating text-warning small">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= product.rating %}
+                                                    <i class="fas fa-star"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
                                             <span class="text-muted">({{ product.reviews.count }})</span>
                                         </div>
                                     </div>

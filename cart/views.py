@@ -246,6 +246,8 @@ def checkout(request):
 def order_confirmation(request, order_id):
     """Order confirmation page"""
     from orders.models import Order
+    from products.models import Product
+    from django.db.models import Q
     
     if request.user.is_authenticated:
         order = get_object_or_404(Order, id=order_id, user=request.user)
@@ -254,8 +256,17 @@ def order_confirmation(request, order_id):
         if order.user:
             return redirect('login')
     
+    # Get recommended products - active products not in the current order
+    ordered_product_ids = order.items.filter(product__isnull=False).values_list('product_id', flat=True)
+    recommended_products = Product.objects.filter(
+        status='active'
+    ).exclude(
+        id__in=ordered_product_ids
+    ).order_by('-rating', '-created_at')[:4]
+    
     context = {
         'order': order,
+        'recommended_products': recommended_products,
     }
     return render(request, 'orders/confirmation.html', context)
 

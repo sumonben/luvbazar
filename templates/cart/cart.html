@@ -3,11 +3,12 @@
 {% block title %}Shopping Cart - {{ settings.site_name }}{% endblock %}
 
 {% block content %}
+
     <div class="container-lg py-5">
         <h2 class="mb-4">Shopping Cart</h2>
 
         {% if cart_items %}
-            <div class="row">
+            <div class="row" id="cart-content">
                 <!-- Cart Items -->
                 <div class="col-lg-8">
                     <div class="card">

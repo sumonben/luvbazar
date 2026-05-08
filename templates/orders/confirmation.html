@@ -18,17 +18,17 @@
                 <!-- Order Details Card -->
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-receipt"></i> Order #ORD-001235</h5>
+                        <h5 class="mb-0"><i class="fas fa-receipt"></i> Order #{{ order.order_number }}</h5>
                     </div>
                     <div class="card-body">
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <h6 class="fw-bold text-muted">Order Date</h6>
-                                <p>December 20, 2024 at 2:30 PM</p>
+                                <p>{{ order.created_at|date:"M d, Y \a\t g:i A" }}</p>
                             </div>
                             <div class="col-md-6">
                                 <h6 class="fw-bold text-muted">Estimated Delivery</h6>
-                                <p>December 23-25, 2024</p>
+                                <p>Within 4-5 Hours</p>
                             </div>
                         </div>
 
@@ -36,45 +36,52 @@
 
                         <h6 class="fw-bold text-muted mb-3">Shipping Address</h6>
                         <div class="mb-4">
-                            <p class="mb-0">John Doe</p>
-                            <p class="mb-0">123 Main Street</p>
-                            <p class="mb-0">New York, NY 10001</p>
-                            <p>United States</p>
+                            <p class="mb-0"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
+                            <p class="mb-0">{{ order.shipping_address }}</p>
+                            {% if order.district %}
+                                <p class="mb-0">{{ order.district.name }}{% if order.upazilla %}, {{ order.upazilla.name }}{% endif %}</p>
+                            {% endif %}
+                            {% if order.division %}
+                                <p class="mb-0">{{ order.division.name }}</p>
+                            {% endif %}
+                            <p class="mb-0">Phone: {{ order.phone }}</p>
+                            <p>Email: {{ order.email }}</p>
                         </div>
 
                         <hr>
 
                         <h6 class="fw-bold text-muted mb-3">Items Ordered</h6>
                         <div class="mb-4">
-                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                                <div class="d-flex align-items-center">
-                                    <img src="https://via.placeholder.com/80" alt="Product" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
-                                    <div>
-                                        <h6 class="mb-0">Premium Wireless Headphones</h6>
-                                        <small class="text-muted">Quantity: 1</small><br>
-                                        <small class="text-muted">Color: Black</small>
+                            {% for item in order.items.all %}
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.image %}
+                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% elif item.room.image %}
+                                            <img src="{{ item.room.image.url }}" alt="{{ item.room.name }}" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% else %}
+                                            <img src="https://via.placeholder.com/80" alt="No Image" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
+                                        {% endif %}
+                                        <div>
+                                            {% if item.product %}
+                                                <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                <small class="text-muted">Quantity: {{ item.quantity }}</small><br>
+                                                <small class="text-muted">{{ item.product.description|truncatewords:10 }}</small>
+                                            {% elif item.room %}
+                                                <h6 class="mb-0">{{ item.room.name }} (Room #{{ item.room.room_number }})</h6>
+                                                <small class="text-muted">Quantity: {{ item.quantity }}</small><br>
+                                                <small class="text-muted">Type: {{ item.room.get_room_type_display }}</small>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <p class="mb-0 fw-bold">&#2547;{{ item.total }}</p>
+                                        <small class="text-muted">Price: &#2547;{{ item.price }}</small>
                                     </div>
                                 </div>
-                                <div class="text-end">
-                                    <p class="mb-0 fw-bold">$129.99</p>
-                                    <small class="text-muted">SKU: HEADPHONES-001</small>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                                <div class="d-flex align-items-center">
-                                    <img src="https://via.placeholder.com/80" alt="Product" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
-                                    <div>
-                                        <h6 class="mb-0">USB-C Cable (3 Pack)</h6>
-                                        <small class="text-muted">Quantity: 2</small><br>
-                                        <small class="text-muted">Color: White</small>
-                                    </div>
-                                </div>
-                                <div class="text-end">
-                                    <p class="mb-0 fw-bold">$39.98</p>
-                                    <small class="text-muted">SKU: CABLE-USB-003</small>
-                                </div>
-                            </div>
+                            {% empty %}
+                                <p class="text-muted">No items in this order.</p>
+                            {% endfor %}
                         </div>
 
                         <hr>
@@ -84,19 +91,15 @@
                             <div class="col-md-6">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>Subtotal:</span>
-                                    <span>$169.97</span>
-                                </div>
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span>Shipping:</span>
-                                    <span class="text-success">&#2547;20</span>
+                                    <span>&#2547;{{ order.subtotal }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between mb-3">
-                                    <span>Tax:</span>
-                                    <span>$13.60</span>
+                                    <span>Shipping:</span>
+                                    <span class="text-success">&#2547;{{ order.shipping_cost }}</span>
                                 </div>
                                 <div class="d-flex justify-content-between" style="font-size: 1.2rem;">
                                     <strong>Total:</strong>
-                                    <strong style="color: #28a745;">$183.57</strong>
+                                    <strong style="color: #28a745;">&#2547;{{ order.total }}</strong>
                                 </div>
                             </div>
                         </div>
@@ -119,7 +122,7 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-1">Order Confirmed</h6>
-                                        <p class="text-muted mb-0">Dec 20, 2024 at 2:30 PM</p>
+                                        <p class="text-muted mb-0">{{ order.created_at|date:"M d, Y \a\t g:i A" }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -133,7 +136,7 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-1">Processing</h6>
-                                        <p class="text-muted mb-0">Expected within 24 hours</p>
+                                        <p class="text-muted mb-0">Expected within 1-2 hours</p>
                                     </div>
                                 </div>
                             </div>
@@ -146,8 +149,8 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <h6 class="mb-1">Shipped</h6>
-                                        <p class="text-muted mb-0">Tracking number will be provided</p>
+                                        <h6 class="mb-1">Out for Delivery</h6>
+                                        <p class="text-muted mb-0">Tracking number will be provided via email</p>
                                     </div>
                                 </div>
                             </div>
@@ -161,7 +164,7 @@
                                     </div>
                                     <div>
                                         <h6 class="mb-1">Delivered</h6>
-                                        <p class="text-muted mb-0">Dec 23-25, 2024</p>
+                                        <p class="text-muted mb-0">Within 4-5 hours from order confirmation</p>
                                     </div>
                                 </div>
                             </div>
@@ -174,7 +177,7 @@
                     <div class="col-md-6">
                         <div class="alert alert-info">
                             <h6 class="alert-heading"><i class="fas fa-envelope"></i> Confirmation Email</h6>
-                            <p class="mb-0">A confirmation email has been sent to john@example.com with order details and tracking information.</p>
+                            <p class="mb-0">A confirmation email has been sent to <strong>{{ order.email }}</strong> with order details and tracking information.</p>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -199,105 +202,51 @@
                 <div class="mt-5">
                     <h4 class="mb-3">You might also like</h4>
                     <div class="row">
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
-                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
-                                <div class="card-body">
-                                    <h6 class="card-title">Portable Phone Charger</h6>
-                                    <div class="text-warning mb-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star-half-alt"></i>
+                        {% for product in recommended_products %}
+                            <div class="col-md-6 col-lg-3 mb-4">
+                                <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="{{ product.name }}">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h6 class="card-title">{{ product.name }}</h6>
+                                        <div class="text-warning mb-2">
+                                            {% for i in "x"|rjust:"5" %}
+                                                {% if product.rating > forloop.counter0 %}
+                                                    <i class="fas fa-star"></i>
+                                                {% elif product.rating > forloop.counter0|add:"-0.5" %}
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                {% else %}
+                                                    <i class="far fa-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <p class="card-text text-muted">{{ product.description|truncatewords:8 }}</p>
                                     </div>
-                                    <p class="card-text text-muted">Fast charging, 20000mAh</p>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong>$39.99</strong>
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fas fa-cart-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
-                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
-                                <div class="card-body">
-                                    <h6 class="card-title">Screen Protector Pack</h6>
-                                    <div class="text-warning mb-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <p class="card-text text-muted">Tempered glass, 3 pack</p>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong>$14.99</strong>
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fas fa-cart-plus"></i>
-                                        </button>
+                                    <div class="card-footer bg-transparent">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                {% if product.offer_price %}
+                                                    <strong style="color: #28a745;">&#2547;{{ product.offer_price }}</strong>
+                                                    <small class="text-muted" style="text-decoration: line-through;">&#2547;{{ product.price }}</small>
+                                                {% else %}
+                                                    <strong>&#2547;{{ product.price }}</strong>
+                                                {% endif %}
+                                            </div>
+                                            <a href="{{ product.get_absolute_url }}" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
-                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
-                                <div class="card-body">
-                                    <h6 class="card-title">Phone Stand</h6>
-                                    <div class="text-warning mb-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star-half-alt"></i>
-                                    </div>
-                                    <p class="card-text text-muted">Adjustable, aluminum alloy</p>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong>$24.99</strong>
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fas fa-cart-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
+                        {% empty %}
+                            <div class="col-12">
+                                <p class="text-muted text-center">No recommended products available at the moment.</p>
                             </div>
-                        </div>
-
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card h-100 shadow-sm hover-shadow" style="cursor: pointer;">
-                                <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Product">
-                                <div class="card-body">
-                                    <h6 class="card-title">Wireless Mouse</h6>
-                                    <div class="text-warning mb-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <p class="card-text text-muted">2.4GHz, ergonomic design</p>
-                                </div>
-                                <div class="card-footer bg-transparent">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <strong>$34.99</strong>
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fas fa-cart-plus"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

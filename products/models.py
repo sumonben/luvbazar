@@ -56,6 +56,14 @@ class Product(models.Model):
     def is_in_stock(self):
         return self.stock > 0
 
+    def update_rating(self):
+        """Calculate and update product rating based on customer reviews"""
+        from django.db.models import Avg
+        avg_rating = self.reviews.aggregate(Avg('rating'))['rating__avg']
+        self.rating = avg_rating if avg_rating else 0
+        self.save(update_fields=['rating', 'updated_at'])
+        return self.rating
+
 
 class Review(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')

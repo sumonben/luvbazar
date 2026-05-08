@@ -220,14 +220,16 @@
                   <div class="d-flex flex-column text-center">
                     <h3 class="fs-6 fw-normal">{{ product.name }}</h3>
                     <div>
-                      <span class="rating">
-                        <svg width="18" height="18" class="text-warning"><use xlink:href="#star-full"></use></svg>
-                        <svg width="18" height="18" class="text-warning"><use xlink:href="#star-full"></use></svg>
-                        <svg width="18" height="18" class="text-warning"><use xlink:href="#star-full"></use></svg>
-                        <svg width="18" height="18" class="text-warning"><use xlink:href="#star-full"></use></svg>
-                        <svg width="18" height="18" class="text-warning"><use xlink:href="#star-half"></use></svg>
+                      <span class="rating text-warning">
+                        {% for i in "12345" %}
+                          {% if forloop.counter <= product.rating %}
+                            <i class="fas fa-star"></i>
+                          {% else %}
+                            <i class="far fa-star"></i>
+                          {% endif %}
+                        {% endfor %}
                       </span>
-                      <span>(222)</span>
+                      <span>({{ product.reviews.count }})</span>
                     </div>
                     <div class="d-flex justify-content-center align-items-center gap-2">
                       <del>&#2547;24.00</del>
