@@ -95,7 +95,7 @@ def index(request):
     # return response
     categories = Category.objects.prefetch_related(
         Prefetch('products', queryset=Product.objects.filter(status='active'))
-    ).all()[:5]
+    ).all()
     featured_products = Product.objects.filter(status='active', rating__gte=4).order_by('-rating')[:12]
     slides = Carousel.objects.filter(status='active')
     
@@ -184,6 +184,9 @@ def products_list(request):
     
     context = {
         'products': products_page,
+        'page_obj': products_page,  # For pagination template
+        'is_paginated': products_page.has_other_pages(),  # For pagination template
+        'paginator': paginator,  # For pagination template
         'categories': categories,
         'selected_category': category_slug,
         'search_query': search_query,
@@ -218,6 +221,9 @@ def product_detail(request, slug):
             
     if cart:
         cart_item = cart.items.filter(product=product).first()
+        cart_product_ids = list(cart.items.values_list('product_id', flat=True))
+        cart_quantities = {item.product_id: item.quantity for item in cart.items.all()}
+    
         if cart_item:
             in_cart = True
             cart_quantity = cart_item.quantity
@@ -228,6 +234,8 @@ def product_detail(request, slug):
         'related_products': related_products,
         'in_cart': in_cart,
         'cart_quantity': cart_quantity,
+        'cart_product_ids': cart_product_ids,
+        'cart_quantities': cart_quantities,
     }
     return render(request, 'products/detail.html', context)
 
@@ -261,12 +269,27 @@ def category_detail(request, slug):
     paginator = Paginator(products, 12)
     page = request.GET.get('page')
     products_page = paginator.get_page(page)
+    from cart.models import Cart
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        session_id = request.session.session_key
+        if session_id:
+            cart = Cart.objects.filter(session_id=session_id).first()
+        else:
+            cart = None
+            
+    if cart:
+        cart_product_ids = list(cart.items.values_list('product_id', flat=True))
+        cart_quantities = {item.product_id: item.quantity for item in cart.items.all()}
     
     context = {
         'category': category,
         'products': products_page,
         'categories': categories,
         'selected_rating': rating,
+        'cart_product_ids': cart_product_ids,
+        'cart_quantities': cart_quantities,
     }
     return render(request, 'products/list.html', context)
 

@@ -67,6 +67,9 @@ urlpatterns = [
     # Payments
     path('payments/', include('payments.urls')),
     
+    # Region API
+    path('', include('region.urls')),
+    
     # API
     # path('api/v1/', include('rest_framework.urls')),
     # path('api/v1/products/', include('products.urls')),

@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{%load static %}
+<style> 
+
+</style>
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ settings.site_name|default:_('Ecommerce') }}{% endblock %}
+
+{% block branding %}
+
+<h1 id="site-name" align="center"><a href="{% url 'admin:index' %}" ><img height="80px" width="auto"  src="{{ settings.logo.url }}" alt="ictparkbd_logo" >&nbsp;{{ settings.site_name }}</a></h1>
+{% if user.is_anonymous %}
+  {% include "admin/color_theme_toggle.html" %}
+{% endif %}
+
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

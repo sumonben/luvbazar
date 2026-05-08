@@ -172,12 +172,11 @@ def checkout(request):
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
-        street_address = request.POST.get('street_address')
-        apartment = request.POST.get('apartment')
-        city = request.POST.get('city')
-        state = request.POST.get('state')
-        zip_code = request.POST.get('zip_code')
-        country = request.POST.get('country')
+        shipping_address = request.POST.get('shipping_address')
+        division_id = request.POST.get('division')
+        district_id = request.POST.get('district')
+        upazila_id = request.POST.get('upazila')
+        union_id = request.POST.get('union')
         payment_method = request.POST.get('payment_method', 'cash_on_delivery')
         
         # Create order
@@ -201,12 +200,11 @@ def checkout(request):
             last_name=last_name,
             email=email,
             phone=phone,
-            street_address=street_address,
-            apartment=apartment,
-            shipping_city=city,
-            shipping_state=state,
-            shipping_zip=zip_code,
-            shipping_country=country,
+            shipping_address=shipping_address,
+            division_id=division_id,
+            district_id=district_id,
+            upazilla_id=upazila_id,
+            union_id=union_id,
             subtotal=subtotal,
             shipping_cost=shipping_cost,
             tax=tax,
@@ -302,6 +300,7 @@ def order_page(request):
         last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
+        shipping_address = request.POST.get('shipping_address')
         payment_method = request.POST.get('payment_method', 'cash_on_delivery')
         
         # Generate order number
@@ -389,12 +388,8 @@ def order_page(request):
                 messages.error(request, 'Your cart is empty')
                 return redirect('cart')
             
-            street_address = request.POST.get('street_address')
-            apartment = request.POST.get('apartment', '')
-            city = request.POST.get('city')
-            state = request.POST.get('state')
-            zip_code = request.POST.get('zip_code')
-            country = request.POST.get('country')
+            shipping_address = request.POST.get('shipping_address')
+            
             
             # Calculate totals
             subtotal = float(sum(item.get_total_price() for item in cart_items))
@@ -411,12 +406,7 @@ def order_page(request):
                 last_name=last_name,
                 email=email,
                 phone=phone,
-                street_address=street_address,
-                apartment=apartment,
-                shipping_city=city,
-                shipping_state=state,
-                shipping_zip=zip_code,
-                shipping_country=country,
+                shipping_address=shipping_address,
                 subtotal=subtotal,
                 shipping_cost=shipping_cost,
                 tax=tax,

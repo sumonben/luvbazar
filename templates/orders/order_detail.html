@@ -171,12 +171,28 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-0">
-                            <strong>{{ order.user.first_name }} {{ order.user.last_name }}</strong><br>
-                            {% if order.shipping_address %}
-                                {{ order.shipping_address }}<br>
+                            <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                            {% if order.street_address %}
+                                {{ order.street_address }}<br>
                             {% endif %}
-                            {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}<br>
-                            {{ order.shipping_country }}
+                            {% if order.apartment %}
+                                {{ order.apartment }}<br>
+                            {% endif %}
+                            {% if order.union %}
+                                {{ order.union.name_en }},
+                            {% endif %}
+                            {% if order.upazilla %}
+                                {{ order.upazilla.name_en }},
+                            {% endif %}
+                            {% if order.district %}
+                                {{ order.district.name_en }},
+                            {% endif %}
+                            {% if order.division %}
+                                {{ order.division.name_en }}
+                            {% endif %}
+                            {% if order.phone %}
+                                <br><strong>Phone:</strong> {{ order.phone }}
+                            {% endif %}
                         </p>
                     </div>
                 </div>

@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from products.models import Product
-
+from region.models import Union,Upazilla,District,Division
 
 class Order(models.Model):
     ORDER_TYPE_CHOICES = [
@@ -40,13 +40,13 @@ class Order(models.Model):
     phone = models.CharField(max_length=20, blank=True, null=True)
     
     # Shipping information (for products)
-    street_address = models.CharField(max_length=255, default='')
-    apartment = models.CharField(max_length=255, blank=True, null=True)
+    
     shipping_address = models.TextField(blank=True, null=True)
-    shipping_city = models.CharField(max_length=100, default='')
-    shipping_state = models.CharField(max_length=100, default='')
-    shipping_zip = models.CharField(max_length=20, default='')
-    shipping_country = models.CharField(max_length=100, default='')
+    union = models.ForeignKey(Union, on_delete=models.SET_NULL, null=True, blank=True)
+    upazilla = models.ForeignKey(Upazilla, on_delete=models.SET_NULL, null=True, blank=True)
+    district = models.ForeignKey(District, on_delete=models.SET_NULL, null=True, blank=True)
+    division = models.ForeignKey(Division, on_delete=models.SET_NULL, null=True, blank=True)
+
     
     # Room booking specific fields
     check_in_date = models.DateField(null=True, blank=True)
