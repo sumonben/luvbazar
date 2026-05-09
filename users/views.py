@@ -7,6 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from .models import UserProfile
 from orders.models import Order
+from cart.views import migrate_session_cart_to_user
 
 
 def register(request):
@@ -50,6 +51,8 @@ def register(request):
                 )
                 UserProfile.objects.create(user=user)
                 login(request, user)
+                # Migrate session cart to new user account
+                migrate_session_cart_to_user(request, user)
                 messages.success(request, 'Account created successfully!')
                 return redirect('home')
         except Exception as e:
@@ -73,6 +76,8 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
+            # Migrate session cart to user account
+            migrate_session_cart_to_user(request, user)
             if not remember_me:
                 request.session.set_expiry(0)
             messages.success(request, f'Welcome back, {user.first_name or user.username}!')

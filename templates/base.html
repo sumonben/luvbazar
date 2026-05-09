@@ -437,25 +437,55 @@
         .bg-light {
             --bs-bg-opacity: 0;
         }
+        .search-n-bag {
+            margin-left:20%;
+        }
         .search-bar {
             margin-top: 0px !important;
             width: 100%;
-    
-            margin-left: 3%;
+            padding: 0;
+            float: right;
         }
         @media (max-width: 768px) {
             .search-bar {
                 margin-top: 0px !important;
                 width: 100%;
                 margin-left: 0;
+                 margin: 0;
+                padding: 0;
+                float: none;
             }
+            .col-11 {
+            flex: 0 0 auto;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            }
+            .search-n-bag {
+            margin-left:0%;
+        }
         }
         @media (min-width: 992px) {
-    .container, .container-lg, .container-md, .container-sm {
-        max-width: 95%;
-        
-    }
-}
+            .container, .container-lg, .container-md, .container-sm {
+                max-width: 95%;
+                
+            }
+            .search-n-bag {
+            margin-left:5%;
+        }
+            .search-bar {
+                margin-top: 0px !important;
+                width: 100%;
+                margin-left: 0;
+                 
+                float: right;
+            }
+        }
+       .bg-light{
+            --bs-bg-opacity: 0;
+            
+       }
+       
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -536,7 +566,8 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="search-bar row bg-light p-2 rounded-4">
+            <div class="search-n-bag"  style="display: flex;">
+            <div class="search-bar row bg-light p-2 rounded-4" style=" margin-right: 0; width: 100%;">
               <div class="col-md-4 d-none d-md-block">
                 <form  action="/products/" method="GET" class="d-flex align-items-center">
                         <select class="form-select" id="categorySelect" name="category" style="max-width: 250px;" onchange="this.form.submit()">
@@ -554,24 +585,42 @@
               </div>
               <div class="col-11 col-md-7" >
  <!-- Search Form -->
-                <form class="d-flex mx-auto position-relative" action="{% url 'products-list' %}" method="GET" >
+                <form class="d-flex ms-auto position-relative" action="{% url 'products-list' %}" method="GET" >
                     <input class="form-control me-2" type="search" name="search" id="search-input" placeholder="Search products..." aria-label="Search" autocomplete="off" style="width: 100%; max-width: 500px;">
                     <button class="btn btn-outline-light" type="submit"><i class="fas fa-search"></i></button>
                     <!-- Autocomplete Results Container -->
                     <div id="search-results" class="position-absolute w-100 bg-white shadow rounded" style="top: 100%; left: 0; z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
+                
                 </form>
-
+               
               </div>
+               
               
           </div>
+          <div>
+            <a class="position-relative" href="{% url 'cart' %}">
+                <svg width="50" height="50" style="color: #fff;"><use xlink:href="#shopping-bag"></use></svg>
+                <span id="cart-count" class="cart-badge badge rounded-pill bg-danger {% if not cart_item_count or cart_item_count == 0 %}d-none{% endif %}">
+                    {{ cart_item_count|default:0 }}
+                </span>
+            </a>
+          </div>
+        </div>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav" style="float:right">
                 
                 <ul class="navbar-nav">
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'products-list' %}">Products</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#"  role="button" data-bs-toggle="dropdown">Products</a>
+                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="{% url 'products-list' %}">All Products</a></li>
+                            {% for category in categories %}
+                                <li><a class="dropdown-item" href="{% url 'products-list' %}?category={{ category.slug }}">{{ category.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+
                     </li>
                     {% comment %} <li class="nav-item">
                         <a class="nav-link" href="{% url 'about' %}">About</a>
@@ -579,16 +628,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'contact' %}">Contact</a>
                     </li> {% endcomment %}
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'cart' %}">
-                                              <svg width="30" height="30"><use xlink:href="#shopping-bag"></use></svg>
-
-                            <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge {% if not cart_item_count or cart_item_count == 0 %}d-none{% endif %}">
-                                {{ cart_item_count|default:0 }}
-                            </span>
-                        </a>
-                       
-
+                   
                     </li>
                     
                     <li class="nav-item dropdown">

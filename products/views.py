@@ -133,6 +133,7 @@ def products_list(request):
     
     # Filter by category
     category_slug = request.GET.get('category')
+    print("Category slug:", category_slug)  # Debugging line
     if category_slug:
         products = products.filter(category__slug=category_slug)
     
@@ -193,6 +194,7 @@ def products_list(request):
         'selected_rating': rating,
         'cart_product_ids': cart_product_ids,
         'cart_quantities': cart_quantities,
+        'category_slug': category_slug,
     }
     return render(request, 'products/list.html', context)
 

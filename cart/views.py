@@ -7,6 +7,35 @@ from products.models import Product
 from .models import Cart, CartItem
 
 
+def migrate_session_cart_to_user(request, user):
+    """Migrate cart from session to authenticated user after login"""
+    try:
+        # Get the session-based cart if it exists
+        session_id = request.session.session_key
+        if session_id:
+            session_cart = Cart.objects.filter(session_id=session_id, user__isnull=True).first()
+            if session_cart and session_cart.items.exists():
+                # Get or create user's cart
+                user_cart, _ = Cart.objects.get_or_create(user=user)
+                
+                # Migrate items from session cart to user cart
+                for item in session_cart.items.all():
+                    cart_item, created = CartItem.objects.get_or_create(
+                        cart=user_cart,
+                        product=item.product,
+                        defaults={'quantity': item.quantity}
+                    )
+                    if not created:
+                        # Add quantities if product already exists in user cart
+                        cart_item.quantity += item.quantity
+                        cart_item.save()
+                
+                # Delete the session-based cart
+                session_cart.delete()
+    except Exception as e:
+        print(f"Error migrating cart: {str(e)}")
+
+
 def get_or_create_cart(request):
     """Get or create cart for user/session"""
     if request.user.is_authenticated:

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load cart_tags %}
+{% load site_tags %}
 
 {% block title %}{{products.0.category.name}}-{{ settings.site_name }}{% endblock %}
 
@@ -8,7 +9,13 @@
         <!-- Header Section -->
         <div class="row mb-4">
             <div class="col-12">
-                <h2 class="mb-3" style="color: #007bff;text-align: center;">{{ products.0.category.name }}</h2>
+                <h2 class="mb-3" style="color: #007bff;text-align: center;">
+                {% if category_slug %}
+                    {{ products.0.category.name }}
+                {% else %}
+                    All Products
+                {% endif %}
+                    </h2>
                 
                 <!-- Breadcrumb -->
                 <nav aria-label="breadcrumb" class="mb-3">
@@ -53,6 +60,26 @@
 
                     <!-- Sort -->
                     <form method="get" class="mb-0">
+                        <!-- Preserve filter parameters -->
+                        {% if request.GET.min_price %}
+                            <input type="hidden" name="min_price" value="{{ request.GET.min_price }}">
+                        {% endif %}
+                        {% if request.GET.max_price %}
+                            <input type="hidden" name="max_price" value="{{ request.GET.max_price }}">
+                        {% endif %}
+                        {% if request.GET.search %}
+                            <input type="hidden" name="search" value="{{ request.GET.search }}">
+                        {% endif %}
+                        {% if request.GET.category %}
+                            <input type="hidden" name="category" value="{{ request.GET.category }}">
+                        {% endif %}
+                        {% if request.GET.rating %}
+                            <input type="hidden" name="rating" value="{{ request.GET.rating }}">
+                        {% endif %}
+                        {% if request.GET.page %}
+                            <input type="hidden" name="page" value="1">
+                        {% endif %}
+                        
                         <select class="form-select form-select-sm" name="sort" style="max-width: 200px;" onchange="this.form.submit()">
                             <option value="-created_at" {% if request.GET.sort == '-created_at' or not request.GET.sort %}selected{% endif %}>Newest</option>
                             <option value="price" {% if request.GET.sort == 'price' %}selected{% endif %}>Price: Low to High</option>
@@ -97,7 +124,14 @@
                                     </h5>
                                     
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <del>&#2547;24.00</del><h5 class="mb-0 text-primary">&#2547;{{ product.price|floatformat:2 }}<span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary">10% OFF</span></h5>
+                                        
+                                        {% if product.offer_price %}
+                                        <del>&#2547;{{ product.price|floatformat:2 }}</del>
+                                        <h5 class="mb-0 text-primary">&#2547;{{ product.offer_price|floatformat:2 }}<span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary">{{ product.price|subtract:product.offer_price|floatformat:2 }} OFF</span></h5>
+                                        {% else %}
+                                        <h5 class="mb-0 text-primary">&#2547;{{ product.price|floatformat:2 }}</h5>
+                                        {% endif %}
+                                            
                                         <div class="product-rating text-warning small">
                                             {% for i in "12345" %}
                                                 {% if forloop.counter <= product.rating %}

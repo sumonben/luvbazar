@@ -15,7 +15,7 @@
                         <div class="card-body">
                             {% for item in cart_items %}
                                 <div class="cart-item">
-                                    <div class="row align-items-center">
+                                    <div class="row align-items-center" style="text-align: center;">
                                         <div class="col-md-2">
                                             {% if item.product.image %}
                                                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-item-image">
@@ -33,7 +33,7 @@
                                             <p class="mb-0">&#2547;{{ item.product.price }}</p>
                                         </div>
                                         <div class="col-md-2">
-                                            <div class="input-group" style="width: 100px;">
+                                            <div class="input-group" style="width: 120px; margin: auto;">
                                                 <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity('{{ item.id }}', -1, '{% url 'update-cart-item' item.id %}')">-</button>
                                                 <input type="number" id="quantity-{{ item.id }}" class="form-control text-center" value="{{ item.quantity }}" min="1" readonly>
                                                 <button class="btn btn-outline-secondary btn-sm" type="button" onclick="updateQuantity('{{ item.id }}', 1, '{% url 'update-cart-item' item.id %}')">+</button>

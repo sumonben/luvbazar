@@ -21,7 +21,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('name', 'slug', 'description', 'category')
         }),
         ('Pricing & Stock', {
-            'fields': ('price', 'stock')
+            'fields': ('price','offer_price', 'stock')
         }),
         ('Media', {
             'fields': ('image',)

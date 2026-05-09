@@ -39,10 +39,10 @@
                             <p class="mb-0"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
                             <p class="mb-0">{{ order.shipping_address }}</p>
                             {% if order.district %}
-                                <p class="mb-0">{{ order.district.name }}{% if order.upazilla %}, {{ order.upazilla.name }}{% endif %}</p>
+                                <p class="mb-0">{{ order.district.name_en }}{% if order.upazilla %}, {{ order.upazilla.name_en }}{% endif %}</p>
                             {% endif %}
                             {% if order.division %}
-                                <p class="mb-0">{{ order.division.name }}</p>
+                                <p class="mb-0">{{ order.division.name_en }}</p>
                             {% endif %}
                             <p class="mb-0">Phone: {{ order.phone }}</p>
                             <p>Email: {{ order.email }}</p>
