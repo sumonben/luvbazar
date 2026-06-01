@@ -49,18 +49,18 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="id_email" class="form-label">Email Address *</label>
-                                <input type="email" name="email" id="id_email" class="form-control" placeholder="Enter your email" required>
+                                <label for="id_email" class="form-label">Email Address (Optional)</label>
+                                <input type="email" name="email" id="id_email" class="form-control" placeholder="Enter your email">
                                 {% if form.email.errors %}
                                     <small class="text-danger">{{ form.email.errors.0 }}</small>
                                 {% endif %}
                             </div>
 
                             <div class="mb-3">
-                                <label for="id_username" class="form-label">Username *</label>
-                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Choose a username" required>
-                                {% if form.username.errors %}
-                                    <small class="text-danger">{{ form.username.errors.0 }}</small>
+                                <label for="id_phone" class="form-label">Phone Number *</label>
+                                <input type="tel" name="phone" id="id_phone" class="form-control" placeholder="Enter your phone number" required>
+                                {% if form.phone.errors %}
+                                    <small class="text-danger">{{ form.phone.errors.0 }}</small>
                                 {% endif %}
                             </div>
 

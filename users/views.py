@@ -5,89 +5,107 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
+from django.http import HttpResponseRedirect
 from .models import UserProfile
+from .forms import PhoneNumberRegistrationForm, PhoneNumberLoginForm
 from orders.models import Order
 from cart.views import migrate_session_cart_to_user
 
 
 def register(request):
-    """User registration view"""
+    """User registration view using phone number"""
     if request.user.is_authenticated:
         return redirect('home')
     
     if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('password1')
-        password2 = request.POST.get('password2')
-        first_name = request.POST.get('first_name', '')
-        last_name = request.POST.get('last_name', '')
-        
-        # Validation
-        if password1 != password2:
-            messages.error(request, 'Passwords do not match.')
-            return render(request, 'auth/register.html')
-        
-        if len(password1) < 8:
-            messages.error(request, 'Password must be at least 8 characters long.')
-            return render(request, 'auth/register.html')
-        
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'Username already exists.')
-            return render(request, 'auth/register.html')
-        
-        if User.objects.filter(email=email).exists():
-            messages.error(request, 'Email already registered.')
-            return render(request, 'auth/register.html')
-        
-        try:
-            with transaction.atomic():
+        form = PhoneNumberRegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                # Capture old session ID before login (because login() creates a new session)
+                old_session_id = request.session.session_key
+                
+                phone = form.cleaned_data['phone']
+                email = form.cleaned_data.get('email', '')
+                password1 = form.cleaned_data['password1']
+                first_name = form.cleaned_data.get('first_name', '')
+                last_name = form.cleaned_data.get('last_name', '')
+                
+                # Create user with phone as username (for Django's auth system)
                 user = User.objects.create_user(
-                    username=username,
-                    email=email,
+                    username=phone,
+                    email=email if email else '',
                     password=password1,
                     first_name=first_name,
                     last_name=last_name
                 )
-                UserProfile.objects.create(user=user)
+                
+                # Create user profile with phone
+                UserProfile.objects.create(user=user, phone=phone)
+                
+                # Login the user with explicit backend
+                user.backend = 'users.backends.PhoneNumberBackend'
                 login(request, user)
-                # Migrate session cart to new user account
-                migrate_session_cart_to_user(request, user)
+                
+                # Migrate cart from session to user after successful registration
+                # Pass the OLD session ID that we captured before login
+                migrate_session_cart_to_user(request, user, old_session_key=old_session_id)
+                
                 messages.success(request, 'Account created successfully!')
                 return redirect('home')
-        except Exception as e:
-            messages.error(request, f'Error creating account: {str(e)}')
-            return render(request, 'auth/register.html')
+                
+            except Exception as e:
+                messages.error(request, f'Error creating account: {str(e)}')
+                return render(request, 'auth/register.html', {'form': form})
+        else:
+            return render(request, 'auth/register.html', {'form': form})
+    else:
+        form = PhoneNumberRegistrationForm()
     
-    return render(request, 'auth/register.html')
+    return render(request, 'auth/register.html', {'form': form})
 
 
 def login_view(request):
-    """User login view"""
+    """User login view using phone number"""
     if request.user.is_authenticated:
         return redirect('home')
     
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        remember_me = request.POST.get('remember_me')
-        
-        user = authenticate(request, username=username, password=password)
-        
-        if user is not None:
-            login(request, user)
-            # Migrate session cart to user account
-            migrate_session_cart_to_user(request, user)
-            if not remember_me:
-                request.session.set_expiry(0)
-            messages.success(request, f'Welcome back, {user.first_name or user.username}!')
+        form = PhoneNumberLoginForm(request.POST)
+        if form.is_valid():
+            # Capture old session ID before login (because login() creates a new session)
+            old_session_id = request.session.session_key
             
-            next_page = request.GET.get('next', 'home')
-            return redirect(next_page)
+            phone = form.cleaned_data['phone']
+            password = form.cleaned_data['password']
+            remember_me = form.cleaned_data.get('remember_me', False)
+            
+            # Authenticate using phone number (as username)
+            user = authenticate(request, username=phone, password=password)
+            
+            if user is not None:
+                # Set the backend explicitly for login
+                user.backend = 'users.backends.PhoneNumberBackend'
+                login(request, user)
+                
+                # Migrate cart from session to user after successful login
+                # Pass the OLD session ID that we captured before login
+                migrate_session_cart_to_user(request, user, old_session_key=old_session_id)
+                
+                if not remember_me:
+                    request.session.set_expiry(0)
+                    
+                messages.success(request, f'Welcome back, {user.first_name or user.username}!')
+                next_page = request.GET.get('next', 'home')
+                return redirect(next_page)
+            else:
+                messages.error(request, 'Invalid phone number or password.')
+                return render(request, 'auth/login.html', {'form': form})
         else:
-            messages.error(request, 'Invalid username or password.')
+            return render(request, 'auth/login.html', {'form': form})
+    else:
+        form = PhoneNumberLoginForm()
     
-    return render(request, 'auth/login.html')
+    return render(request, 'auth/login.html', {'form': form})
 
 
 @login_required(login_url='login')

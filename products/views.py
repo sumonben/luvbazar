@@ -247,6 +247,8 @@ def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = Product.objects.filter(status='active', category=category)
     categories = Category.objects.all()
+    cart_product_ids=[]
+    cart_quantities={}
     
     # Filter by price range
     min_price = request.GET.get('min_price')

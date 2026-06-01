@@ -36,7 +36,7 @@ class Order(models.Model):
     # Customer information
     first_name = models.CharField(max_length=100, default='')
     last_name = models.CharField(max_length=100, default='')
-    email = models.EmailField(default='')
+    email = models.EmailField(blank=True, default='')
     phone = models.CharField(max_length=20, blank=True, null=True)
     
     # Shipping information (for products)
@@ -82,7 +82,6 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
-    room = models.ForeignKey('products.Room', on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
@@ -93,8 +92,6 @@ class OrderItem(models.Model):
     def __str__(self):
         if self.product:
             return f"{self.product.name} - Order {self.order.order_number}"
-        elif self.room:
-            return f"Room {self.room.room_number} - Order {self.order.order_number}"
         return f"Order Item {self.id}"
     
     def get_total_price(self):
@@ -102,9 +99,7 @@ class OrderItem(models.Model):
         return self.price * self.quantity
     
     def get_item_name(self):
-        """Get the name of the item (product or room)"""
+        """Get the name of the item (product)"""
         if self.product:
             return self.product.name
-        elif self.room:
-            return f"{self.room.name} - {self.room.room_number}"
         return "Unknown Item"

@@ -33,10 +33,10 @@
                             {% csrf_token %}
                             
                             <div class="mb-3">
-                                <label for="id_username" class="form-label">Username or Email</label>
-                                <input type="text" name="username" id="id_username" class="form-control" placeholder="Enter your username or email" required autofocus>
-                                {% if form.username.errors %}
-                                    <small class="text-danger">{{ form.username.errors.0 }}</small>
+                                <label for="id_phone" class="form-label">Phone Number</label>
+                                <input type="tel" name="phone" id="id_phone" class="form-control" placeholder="Enter your phone number" required autofocus>
+                                {% if form.phone.errors %}
+                                    <small class="text-danger">{{ form.phone.errors.0 }}</small>
                                 {% endif %}
                             </div>
 

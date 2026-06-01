@@ -7,33 +7,44 @@ from products.models import Product
 from .models import Cart, CartItem
 
 
-def migrate_session_cart_to_user(request, user):
+def migrate_session_cart_to_user(request, user, old_session_key=None):
     """Migrate cart from session to authenticated user after login"""
+    import logging
+    logger = logging.getLogger(__name__)
+    
     try:
-        # Get the session-based cart if it exists
-        session_id = request.session.session_key
-        if session_id:
-            session_cart = Cart.objects.filter(session_id=session_id, user__isnull=True).first()
-            if session_cart and session_cart.items.exists():
-                # Get or create user's cart
-                user_cart, _ = Cart.objects.get_or_create(user=user)
-                
-                # Migrate items from session cart to user cart
-                for item in session_cart.items.all():
-                    cart_item, created = CartItem.objects.get_or_create(
-                        cart=user_cart,
-                        product=item.product,
-                        defaults={'quantity': item.quantity}
-                    )
-                    if not created:
-                        # Add quantities if product already exists in user cart
-                        cart_item.quantity += item.quantity
-                        cart_item.save()
-                
-                # Delete the session-based cart
-                session_cart.delete()
+        # Use provided session key or current one
+        session_id = old_session_key or request.session.session_key
+        if not session_id:
+            return  # No session to migrate
+        
+        # Get session cart without modifying session
+        session_cart = Cart.objects.filter(session_id=session_id, user__isnull=True).first()
+        if not session_cart or not session_cart.items.exists():
+            return  # Nothing to migrate
+        
+        # Get or create user's cart
+        user_cart, _ = Cart.objects.get_or_create(user=user)
+        
+        # Migrate items from session cart to user cart
+        for item in session_cart.items.all():
+            cart_item, created = CartItem.objects.get_or_create(
+                cart=user_cart,
+                product=item.product,
+                defaults={'quantity': item.quantity}
+            )
+            if not created:
+                # Add quantities if product already exists in user cart
+                cart_item.quantity += item.quantity
+                cart_item.save()
+        
+        # Delete the session-based cart (after items are migrated)
+        session_cart.delete()
+        logger.info(f"Cart migrated from session {session_id} to user {user.id}")
+        
     except Exception as e:
-        print(f"Error migrating cart: {str(e)}")
+        # Log error but never raise - cart migration must not break registration/login
+        logger.exception(f"Error migrating cart: {str(e)}")
 
 
 def get_or_create_cart(request):
@@ -315,24 +326,17 @@ def cart_count(request):
 
 def order_page(request):
     """
-    Unified order page for both products and room bookings
-    Supports full order process including room selection, date picking, and payment
+    Order page for product orders
+    Supports full order process including product selection, address, and payment
     """
-    from products.models import Room
     from orders.models import Order, OrderItem
     from django.utils import timezone
     from datetime import datetime, timedelta
     import uuid
     
-    # Get available rooms
-    rooms = Room.objects.filter(status='available')
-    
     # Get cart items (for product orders)
     cart = get_or_create_cart(request)
     cart_items = cart.items.all()
-    
-    # Initialize order type
-    order_type = request.GET.get('type', 'product')  # 'product' or 'room'
     
     if request.method == 'POST':
         # Get common fields
@@ -346,87 +350,10 @@ def order_page(request):
         # Generate order number
         order_number = f"ORD-{uuid.uuid4().hex[:8].upper()}"
         
-        # Handle room booking
-        if order_type == 'room':
-            room_id = request.POST.get('room_id')
-            check_in = request.POST.get('check_in_date')
-            check_out = request.POST.get('check_out_date')
-            guests = request.POST.get('number_of_guests', 1)
-            special_requests = request.POST.get('special_requests', '')
-            
-            if not all([room_id, check_in, check_out]):
-                messages.error(request, 'Please fill in all required room booking fields')
-                return redirect('order-page')
-            
-            try:
-                room = Room.objects.get(id=room_id, status='available')
-                check_in_date = datetime.strptime(check_in, '%Y-%m-%d').date()
-                check_out_date = datetime.strptime(check_out, '%Y-%m-%d').date()
-                
-                # Validate dates
-                if check_in_date < timezone.now().date():
-                    messages.error(request, 'Check-in date cannot be in the past')
-                    return redirect('order-page')
-                
-                if check_out_date <= check_in_date:
-                    messages.error(request, 'Check-out date must be after check-in date')
-                    return redirect('order-page')
-                
-                # Calculate nights and total
-                nights = (check_out_date - check_in_date).days
-                subtotal = float(room.price_per_night) * nights
-                tax = round(subtotal * 0.08, 2)
-                total = subtotal + tax
-                
-                # Create room booking order
-                order = Order.objects.create(
-                    user=request.user if request.user.is_authenticated else None,
-                    order_number=order_number,
-                    order_type='room',
-                    first_name=first_name,
-                    last_name=last_name,
-                    email=email,
-                    phone=phone,
-                    check_in_date=check_in_date,
-                    check_out_date=check_out_date,
-                    number_of_guests=int(guests),
-                    special_requests=special_requests,
-                    subtotal=subtotal,
-                    shipping_cost=0,
-                    tax=tax,
-                    total=total,
-                    status='pending',
-                )
-                
-                # Create order item for room
-                OrderItem.objects.create(
-                    order=order,
-                    room=room,
-                    quantity=nights,  # Number of nights
-                    price=room.price_per_night,
-                    total=subtotal,
-                )
-                
-                messages.success(request, f'Room booking created successfully! Order: {order_number}')
-                
-                # Handle payment
-                if payment_method == 'sslcommerz':
-                    return redirect('payments:ssl-initiate', order_id=order.id)
-                else:
-                    return redirect('order-confirmation', order_id=order.id)
-                    
-            except Room.DoesNotExist:
-                messages.error(request, 'Selected room is not available')
-                return redirect('order-page')
-            except ValueError as e:
-                messages.error(request, f'Invalid date format: {str(e)}')
-                return redirect('order-page')
-        
         # Handle product order
-        else:
-            if not cart_items.exists():
-                messages.error(request, 'Your cart is empty')
-                return redirect('cart')
+        if not cart_items.exists():
+            messages.error(request, 'Your cart is empty')
+            return redirect('cart')
             
             shipping_address = request.POST.get('shipping_address')
             
@@ -478,11 +405,9 @@ def order_page(request):
     total_price = sum(item.get_total_price() for item in cart_items) if cart_items.exists() else 0
     
     context = {
-        'rooms': rooms,
         'cart': cart,
         'cart_items': cart_items,
         'total_price': f'{float(total_price):.2f}',
-        'order_type': order_type,
         'today': timezone.now().date(),
         'min_checkout': (timezone.now() + timedelta(days=1)).date(),
     }

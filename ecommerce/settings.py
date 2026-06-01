@@ -163,6 +163,13 @@ ALLOWED_HOSTS = ['*']
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Custom authentication backend for phone number login
+AUTHENTICATION_BACKENDS = [
+    'users.backends.PhoneNumberBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Keep default backend for backward compatibility
+]
+
 # SSL Commerz Payment Gateway Configuration
 SSL_COMMERZ_STORE_ID = os.getenv('SSL_COMMERZ_STORE_ID', 'israb672a4e32dfea5')
 SSL_COMMERZ_STORE_PASSWORD = os.getenv('SSL_COMMERZ_STORE_PASSWORD', 'israb672a4e32dfea5@ssl')
