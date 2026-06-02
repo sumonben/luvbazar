@@ -41,14 +41,6 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="id_last_name" class="form-label">Last Name</label>
-                                <input type="text" name="last_name" id="id_last_name" class="form-control" placeholder="Enter your last name">
-                                {% if form.last_name.errors %}
-                                    <small class="text-danger">{{ form.last_name.errors.0 }}</small>
-                                {% endif %}
-                            </div>
-
-                            <div class="mb-3">
                                 <label for="id_email" class="form-label">Email Address (Optional)</label>
                                 <input type="email" name="email" id="id_email" class="form-control" placeholder="Enter your email">
                                 {% if form.email.errors %}

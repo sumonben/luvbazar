@@ -171,7 +171,7 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-0">
-                            <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                            <strong>{{ order.first_name }}</strong><br>
                             {% if order.street_address %}
                                 {{ order.street_address }}<br>
                             {% endif %}
@@ -234,7 +234,7 @@
                     </div>
                     <div class="card-body">
                         <p class="mb-2">
-                            <strong>Name:</strong> {{ order.user.first_name }} {{ order.user.last_name }}
+                            <strong>Name:</strong> {{ order.user.first_name }}
                         </p>
                         <p class="mb-2">
                             <strong>Email:</strong> {{ order.user.email }}

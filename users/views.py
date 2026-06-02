@@ -28,15 +28,13 @@ def register(request):
                 email = form.cleaned_data.get('email', '')
                 password1 = form.cleaned_data['password1']
                 first_name = form.cleaned_data.get('first_name', '')
-                last_name = form.cleaned_data.get('last_name', '')
                 
                 # Create user with phone as username (for Django's auth system)
                 user = User.objects.create_user(
                     username=phone,
                     email=email if email else '',
                     password=password1,
-                    first_name=first_name,
-                    last_name=last_name
+                    first_name=first_name
                 )
                 
                 # Create user profile with phone
@@ -136,14 +134,12 @@ def profile_update(request):
     """Update user profile"""
     if request.method == 'POST':
         first_name = request.POST.get('first_name', '')
-        last_name = request.POST.get('last_name', '')
         email = request.POST.get('email', '')
         phone = request.POST.get('phone', '')
         bio = request.POST.get('bio', '')
         
         user = request.user
         user.first_name = first_name
-        user.last_name = last_name
         user.email = email
         user.save()
         

@@ -209,7 +209,6 @@ def checkout(request):
     if request.method == 'POST':
         # Process checkout
         first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         shipping_address = request.POST.get('shipping_address')
@@ -237,7 +236,6 @@ def checkout(request):
             user=request.user if request.user.is_authenticated else None,
             order_number=order_number,
             first_name=first_name,
-            last_name=last_name,
             email=email,
             phone=phone,
             shipping_address=shipping_address,
@@ -341,7 +339,6 @@ def order_page(request):
     if request.method == 'POST':
         # Get common fields
         first_name = request.POST.get('first_name')
-        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         phone = request.POST.get('phone')
         shipping_address = request.POST.get('shipping_address')
@@ -370,7 +367,6 @@ def order_page(request):
                 order_number=order_number,
                 order_type='product',
                 first_name=first_name,
-                last_name=last_name,
                 email=email,
                 phone=phone,
                 shipping_address=shipping_address,

@@ -35,7 +35,6 @@ class Order(models.Model):
     
     # Customer information
     first_name = models.CharField(max_length=100, default='')
-    last_name = models.CharField(max_length=100, default='')
     email = models.EmailField(blank=True, default='')
     phone = models.CharField(max_length=20, blank=True, null=True)
     

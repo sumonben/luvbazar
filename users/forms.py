@@ -19,15 +19,6 @@ class PhoneNumberRegistrationForm(forms.Form):
         })
     )
     
-    last_name = forms.CharField(
-        max_length=30,
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Enter your last name'
-        })
-    )
-    
     phone = forms.CharField(
         max_length=20,
         required=True,

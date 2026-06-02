@@ -31,6 +31,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #e9dfdc 30%, #f3f4f6 100%);
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-variant-numeric: lining-nums;
         }
 
         /* Navbar */
@@ -38,14 +42,30 @@
             background: linear-gradient(135deg, var(--primary-color), #ec9e71);
             box-shadow: 0 4px 20px rgba(0,0,0,0.15);
             padding: 15px 0;
+            position: relative;
+        }
+
+        .navbar .container-lg {
+            display: flex;
+            align-items: flex-start;
+            flex-wrap: wrap;
         }
 
         .navbar-brand {
             font-weight: 800;
             color: #fff !important;
-            font-size: 1.6rem;
+            font-size: 1.2rem;
             letter-spacing: 0.5px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            margin-bottom: 0;
+        }
+
+        .navbar-toggler {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            flex-shrink: 0;
         }
 
         .nav-link {
@@ -324,13 +344,42 @@
         }
 
         /* Responsive */
+        @media (max-width: 992px) {
+            .navbar-brand {
+                font-size: 1rem;
+            }
+        }
+
         @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 0.9rem;
+            }
+
             .hero h1 {
                 font-size: 2rem;
             }
             
             .hero p {
                 font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .navbar-brand {
+                font-size: 0.75rem;
+            }
+            
+        }
+
+        @media (max-width: 400px) {
+            .navbar-brand {
+                font-size: 1.15rem !important;
+                font-weight: 800;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                transform: scaleY(1.2); /* Increases height by 50% */
+                transform-origin: bottom; /* Adjusts the anchor point if needed */
             }
         }
 
@@ -438,7 +487,6 @@
             --bs-bg-opacity: 0;
         }
         .search-n-bag {
-            margin-left:20%;
         }
         .search-bar {
             margin-top: 0px !important;
@@ -462,8 +510,9 @@
             padding: 0;
             }
             .search-n-bag {
-            margin-left:0%;
-        }
+                width: 100%;
+                transform: translateX(1.30%);
+            }
         }
         @media (min-width: 992px) {
             .container, .container-lg, .container-md, .container-sm {
@@ -551,7 +600,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark" >
         <div class="container-lg">
-            <a class="navbar-brand" href="{% url 'home' %}">
+            <a class="navbar-brand" href="{% url 'home' %}" style="display: flex; align-items: center;">
                 {% if settings.logo %}
                     <img src="{{ settings.logo.url }}" alt="{{ settings.site_name }}" height="60" >
                 {% else %}
@@ -638,7 +687,7 @@
                       <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                       <svg width="24" height="24"><use xlink:href="#user"></use></svg>
                       </a>
-                         <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                         <ul class="dropdown-menu" style="text-align: center;width:50%;margin: auto;" aria-labelledby="userDropdown">
                           
                          {% if user.is_authenticated %}
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>

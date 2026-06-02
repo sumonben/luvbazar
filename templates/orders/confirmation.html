@@ -36,7 +36,7 @@
 
                         <h6 class="fw-bold text-muted mb-3">Shipping Address</h6>
                         <div class="mb-4">
-                            <p class="mb-0"><strong>{{ order.first_name }} {{ order.last_name }}</strong></p>
+                            <p class="mb-0"><strong>{{ order.first_name }}</strong></p>
                             <p class="mb-0">{{ order.shipping_address }}</p>
                             {% if order.district %}
                                 <p class="mb-0">{{ order.district.name_en }}{% if order.upazilla %}, {{ order.upazilla.name_en }}{% endif %}</p>
