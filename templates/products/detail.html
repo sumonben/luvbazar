@@ -4,6 +4,11 @@
 {% block title %}{{ product.name }} - {{ settings.site_name }}{% endblock %}
 
 {% block content %}
+<style>
+    .icon-responsive {
+        height: calc(133px + (270 - 133) * ((100vw - 480px) / (1280 - 480)));
+    }
+</style>
     <div class="container-lg py-5">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb" class="mb-4">
@@ -18,11 +23,11 @@
         <div class="row">
             <!-- Product Image -->
             <div class="col-lg-5 mb-4">
-                <div class="product-image-large" style="background-color: #f8f9fa; padding: 30px; border-radius: 8px; text-align: center;">
+                <div class="product-image-large icon-responsive" style="background-color: #f8f9fa; padding: 30px; border-radius: 8px; text-align: center;">
                     {% if product.image %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" style="max-width: 100%; height: auto;" loading="eager">
                     {% else %}
-                        <i class="fas fa-box" style="font-size: 5rem; color: #adb5bd;"></i>
+                        <i class="fas fa-box" style="font-size: 5rem; color: #adb5bd; height: 100%;" class="icon-responsive"></i>
                     {% endif %}
                 </div>
                 <!-- Thumbnail gallery placeholder -->

@@ -3,6 +3,11 @@
 {% block title %}My Profile - Ecommerz{% endblock %}
 
 {% block content %}
+<style>
+    .form-check,.form-check-input,.form-select, .form-control{
+        border: 1px solid #98e4a2;
+    }
+</style>
     <div class="container py-5">
         <div class="row">
             <!-- Sidebar Navigation -->
@@ -13,8 +18,8 @@
                         <h5 class="mt-3">{{ user.get_full_name|default:user.username }}</h5>
                         <p class="text-muted">{{ user.email }}</p>
                     </div>
-                    <nav class="nav flex-column card-body">
-                        <a class="nav-link active" href="#profile" data-bs-toggle="tab">
+                    <nav class="nav flex-column card-body" style="background-color: #00f9fa;">
+                        <a class="nav-link active" href="#profile" data-bs-toggle="tab" style="background-color: #08f9fa;">
                             <i class="fas fa-user"></i> Profile Info
                         </a>
                         <a class="nav-link" href="#addresses" data-bs-toggle="tab">
@@ -68,7 +73,7 @@
 
                                     <div class="mb-3">
                                         <label for="phone" class="form-label">Phone Number</label>
-                                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="+1 (555) 000-0000">
+                                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ profile.phone|default:'' }}">
                                     </div>
 
                                     <div class="mb-3">
@@ -142,56 +147,146 @@
                     <!-- Orders Tab -->
                     <div class="tab-pane fade" id="orders">
                         <div class="card">
-                            <div class="card-header bg-primary text-white">
-                                <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> Order History</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>Order ID</th>
-                                                <th>Date</th>
-                                                <th>Status</th>
-                                                <th>Total</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>#ORD-001234</td>
-                                                <td>Dec 15, 2024</td>
-                                                <td><span class="badge bg-success">Delivered</span></td>
-                                                <td>$125.99</td>
-                                                <td>
-                                                    <a href="#" class="btn btn-sm btn-info">View</a>
-                                                    <a href="#" class="btn btn-sm btn-primary">Reorder</a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>#ORD-001233</td>
-                                                <td>Dec 10, 2024</td>
-                                                <td><span class="badge bg-warning">Shipped</span></td>
-                                                <td>$89.50</td>
-                                                <td>
-                                                    <a href="#" class="btn btn-sm btn-info">View</a>
-                                                    <a href="#" class="btn btn-sm btn-primary">Reorder</a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>#ORD-001232</td>
-                                                <td>Dec 05, 2024</td>
-                                                <td><span class="badge bg-success">Delivered</span></td>
-                                                <td>$245.00</td>
-                                                <td>
-                                                    <a href="#" class="btn btn-sm btn-info">View</a>
-                                                    <a href="#" class="btn btn-sm btn-primary">Reorder</a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                            <div class="container py-5">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2><i class="fas fa-shopping-bag"></i> My Orders</h2>
+                <p class="text-muted">Track and manage your orders</p>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Your Orders</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if orders %}
+                            {% for order in orders %}
+                                <div class="row border-bottom pb-3 mb-3">
+                                    <div class="col-lg-8">
+                                        <div class="d-flex align-items-start">
+                                            <div class="me-3" style="flex-shrink: 0;">
+                                                {% if order.items.first.product.image %}
+                                                    <img src="{{ order.items.first.product.image.url }}" alt="Product" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;">
+                                                {% else %}
+                                                    <div class="img-thumbnail" style="width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
+                                                        <i class="fas fa-image text-muted"></i>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">Order #{{ order.order_number }}</h6>
+                                                <p class="text-muted mb-2">
+                                                    <small>
+                                                        <i class="fas fa-calendar"></i> {{ order.created_at|date:"M d, Y" }} |
+                                                        <i class="fas fa-box"></i> {{ order.items.count }} item{{ order.items.count|pluralize }} |
+                                                        <i class="fas fa-map-marker-alt"></i> {{ order.shipping_city }}, {{ order.shipping_state }}
+                                                    </small>
+                                                </p>
+                                                <div class="mb-2">
+                                                    {% if order.status == 'pending' %}
+                                                        <span class="badge bg-warning"><i class="fas fa-hourglass-half"></i> Pending</span>
+                                                    {% elif order.status == 'processing' %}
+                                                        <span class="badge bg-info"><i class="fas fa-cog"></i> Processing</span>
+                                                    {% elif order.status == 'shipped' %}
+                                                        <span class="badge bg-primary"><i class="fas fa-truck"></i> Shipped</span>
+                                                    {% elif order.status == 'delivered' %}
+                                                        <span class="badge bg-success"><i class="fas fa-box-open"></i> Delivered</span>
+                                                    {% elif order.status == 'cancelled' %}
+                                                        <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelled</span>
+                                                    {% endif %}
                                 </div>
+                                                <p class="mb-0 text-muted">
+                                                    <strong>Items:</strong> 
+                                                    {% for item in order.items.all|slice:":3" %}
+                                                        {{ item.product.name }}{% if not forloop.last %}, {% endif %}
+                                                    {% endfor %}
+                                                    {% if order.items.count > 3 %}
+                                                        +{{ order.items.count|add:"-3" }} more
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 text-lg-end">
+                                        <h5 class="mb-1 text-success">&#2547;{{ order.total|floatformat:2 }}</h5>
+                                        <p class="text-muted mb-3">
+                                            <strong>Status:</strong> {{ order.get_status_display }}
+                                        </p>
+                                        <div class="btn-group" role="group">
+                                            <a href="{% url 'order-detail' order.id %}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                            <a href="{% url 'products-list' %}" class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-redo"></i> Shop Again
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i> You haven't placed any orders yet. 
+                                <a href="{% url 'products-list' %}" class="alert-link">Start shopping now!</a>
                             </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+            <!-- Processing Tab -->
+            <div class="tab-pane fade" id="processing">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Your processing orders will appear here
+                </div>
+            </div>
+
+            <!-- Shipped Tab -->
+            <div class="tab-pane fade" id="shipped">
+                <div class="alert alert-primary">
+                    <i class="fas fa-info-circle"></i> Your shipped orders will appear here
+                </div>
+            </div>
+
+            <!-- Delivered Tab -->
+            <div class="tab-pane fade" id="delivered">
+                <div class="alert alert-success">
+                    <i class="fas fa-info-circle"></i> Your delivered orders will appear here
+                </div>
+            </div>
+
+            <!-- Cancelled Tab -->
+            <div class="tab-pane fade" id="cancelled">
+                <div class="alert alert-warning">
+                    <i class="fas fa-info-circle"></i> No cancelled orders
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Detail Modals -->
+    <div class="modal fade" id="orderModal1" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Order details will be shown here.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Print Invoice</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
                         </div>
                     </div>
 

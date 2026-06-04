@@ -121,9 +121,10 @@ def profile(request):
         profile = request.user.userprofile
     except UserProfile.DoesNotExist:
         profile = UserProfile.objects.create(user=request.user)
-    
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
     context = {
         'profile': profile,
+        'orders': orders,
     }
     return render(request, 'auth/profile.html', context)
 
@@ -133,6 +134,14 @@ def profile(request):
 def profile_update(request):
     """Update user profile"""
     if request.method == 'POST':
+        try:
+            existing_user = User.objects.get(username=request.POST.get('phone', ''))
+            if existing_user:
+                messages.error(request, 'Phone number is already in use by another account.')
+                return redirect('profile')
+        except User.DoesNotExist:
+            existing_user = None
+
         first_name = request.POST.get('first_name', '')
         email = request.POST.get('email', '')
         phone = request.POST.get('phone', '')
@@ -141,6 +150,7 @@ def profile_update(request):
         user = request.user
         user.first_name = first_name
         user.email = email
+        user.username = phone  # Update username to match phone number
         user.save()
         
         profile = user.userprofile
@@ -148,9 +158,8 @@ def profile_update(request):
         profile.bio = bio
         profile.save()
         
-        messages.success(request, 'Profile updated successfully!')
+        messages.success(request, 'Phone number is updated to match the phone number. Please use your phone number for future logins.')
         return redirect('profile')
-    
     return redirect('profile')
 
 
@@ -159,6 +168,7 @@ def profile_update(request):
 def change_password(request):
     """Change user password"""
     if request.method == 'POST':
+        old_session_id = request.session.session_key
         old_password = request.POST.get('old_password')
         new_password1 = request.POST.get('new_password1')
         new_password2 = request.POST.get('new_password2')
@@ -179,8 +189,9 @@ def change_password(request):
         
         user.set_password(new_password1)
         user.save()
-        
+        user.backend = 'users.backends.PhoneNumberBackend'
         login(request, user)
+        migrate_session_cart_to_user(request, user, old_session_key=old_session_id)
         messages.success(request, 'Password changed successfully!')
         return redirect('profile')
     

@@ -6,16 +6,63 @@
 
 {% block content %}
     
+<style>
+    .icon-responsive {
+  height: calc(133px + (270 - 133) * ((100vw - 480px) / (1280 - 480)));
+}
 
-    <section style="background-image: url('/static/images/banner-1.jpg');background-repeat: no-repeat;background-size: cover;">
+
+    @media (max-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    .btn-view-details,.btn-add-to-cart{
+        font-size: 0.7rem;
+        padding: 0.25rem 0.25rem;
+    }
+    .h5-product-name{
+        font-size: 0.8rem;
+    }
+    .h5-price{
+        font-size: 0.8rem;
+    }
+    .div-price-rating {
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .owl-item {
+            width: calc(55px + 25vw) !important;
+            margin: 0 3px !important;
+        }
+    }
+    @media(max-width: 360px) {
+
+        
+        .card-img-top {
+            height: 150px !important;
+        }
+         .btn-add-to-cart{
+            font-size: 0.6rem;
+            padding: 0.25rem 0.25rem;
+        }
+        .btn-view-details{
+            font-size: 0.6rem;
+            padding: 0.25rem 0.25rem;
+            display: none;
+        }
+    }
+    </style>
+    <section class="hero-section-carousel" style="background-repeat: no-repeat;background-size: cover;">
       <div class="container-lg">
         <div class="row">
           <div class="col-lg-6 pt-5 mt-5">
             <h2><span class="fw-bold text-primary">Organic</span> Foods at your <span class="fw-bold">Doorsteps</span></h2>
-            <p class="fs-4">Dignissim massa diam elementum.</p>
+            <p class="fs-4">Any time, any place, instant delivery.</p>
             <div class="d-flex gap-3">
-              <a href="#" class="btn btn-primary text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Start Shopping</a>
-              <a href="#" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Join Now</a>
+              <a href="{% url 'products-list' %}" class="btn btn-primary text-uppercase fs-10 rounded-pill px-4 py-3 mt-3">Start Shopping</a>
+              <a href="{% url 'register' %}" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Join Now</a>
             </div>
             <div class="row my-5">
               <div class="col">
@@ -50,7 +97,7 @@
                 <div class="col-md-9">
                   <div class="card-body p-0">
                     <h5 class="text-light">Fresh from farm</h5>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                    <p class="card-text">No chemicals, no preservatives. Just pure, natural goodness.</p>
                   </div>
                 </div>
               </div>
@@ -65,7 +112,7 @@
                 <div class="col-md-9">
                   <div class="card-body p-0">
                     <h5 class="text-light">100% Organic</h5>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                    <p class="card-text">Certified organic products, grown without harmful chemicals.</p>
                   </div>
                 </div>
               </div>
@@ -80,14 +127,13 @@
                 <div class="col-md-9">
                   <div class="card-body p-0">
                     <h5 class="text-light">Free delivery</h5>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipi elit.</p>
+                    <p class="card-text">Get your products delivered for free within a short period.</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      
       </div>
     </section>
 
@@ -166,27 +212,27 @@
                                 data-slug="{{ product.slug }}"
                                 title="Quick View"
                                 style="z-index: 10;">
-                            <i class="fas fa-eye"></i>
+                            <a href="{% url 'product-detail' product.slug %}"><i class="fas fa-eye"></i></a>
                         </button>
 
                         <!-- Product Image -->
                         <a href="{% url 'product-detail' product.slug %}">
                             {% if product.image %}
-                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;" loading="lazy">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style=" object-fit: cover;" loading="lazy">
                             {% else %}
-                            <div class="d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
-                                <i class="fas fa-box fa-3x text-muted"></i>
+                            <div class="d-flex align-items-center justify-content-center bg-light icon-responsive" style="object-fit: cover;">
+                                <i class="fas fa-box fa-3x text-muted "></i>
                             </div>
                             {% endif %}
                         </a>
                         
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title text-truncate">
+                            <h5 class="card-title text-truncate h5-product-name">
                                 <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
                             </h5>
                             
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5 class="mb-0 text-primary">&#2547;{{ product.price|floatformat:2 }}</h5>
+                            <div class="d-flex justify-content-between align-items-center mb-3 div-price-rating">
+                                <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 }}</h5>
                                 <div class="product-rating text-warning small">
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= product.rating %}
@@ -200,7 +246,7 @@
                             </div>
 
                             <div class="mt-auto">
-                                <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2">View Details</a>
+                                <a  href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2 btn-view-details">View Details</a>
                                 {% if product.stock > 0 %}
                                     <!-- Quantity Controls (Hidden if not in cart) -->
                                     <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}">
@@ -216,7 +262,7 @@
                                     </div>
 
                                     <!-- Add to Cart Button (Hidden if in cart) -->
-                                    <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %}" 
+                                    <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
                                             id="add-btn-{{ product.id }}"
                                             data-id="{{ product.id }}">
                                         Add to Cart
@@ -287,8 +333,8 @@
                 </div>
                 <div class="owl-carousel owl-theme product-carousel">
                     {% for product in category.products.all %}
-                        <div class="item p-2">
-                            <div class="card h-100 shadow-sm product-card position-relative">
+                        <div class="item p-2" >
+                            <div class="card h-100 shadow-sm product-card position-relative ">
                                 <!-- Quick View Button -->
                                 <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm quick-view-btn" 
                                         data-bs-toggle="modal" 
@@ -296,27 +342,27 @@
                                         data-slug="{{ product.slug }}"
                                         title="Quick View"
                                         style="z-index: 10;">
-                                    <i class="fas fa-eye"></i>
+                            <a href="{% url 'product-detail' product.slug %}"><i class="fas fa-eye"></i></a>
                                 </button>
 
                                 <!-- Product Image -->
                                 <a href="{% url 'product-detail' product.slug %}">
                                     {% if product.image %}
-                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: cover;" loading="lazy">
+                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="object-fit: cover;" loading="lazy">
                                     {% else %}
-                                    <div class="d-flex align-items-center justify-content-center bg-light" style="height: 250px;">
-                                        <i class="fas fa-box fa-3x text-muted"></i>
+                                    <div class="d-flex align-items-center justify-content-center bg-light icon-responsive" style="object-fit: cover;">
+                                        <i class="fas fa-box fa-3x text-muted "></i>
                                     </div>
                                     {% endif %}
                                 </a>
                                 
                                 <div class="card-body d-flex flex-column">
                                     <h5 class="card-title text-truncate">
-                                        <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                                        <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark h5-product-name">{{ product.name }}</a>
                                     </h5>
                                     
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 class="mb-0 text-primary">&#2547;{{ product.price }}</h5>
+                                    <div class="d-flex justify-content-between align-items-center mb-3 div-price-rating">
+                                        <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price }}</h5>
                                         <div class="product-rating text-warning small">
                                             {% for i in "12345" %}
                                                 {% if forloop.counter <= product.rating %}
@@ -330,7 +376,7 @@
                                     </div>
 
                                     <div class="mt-auto">
-                                        <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2">View Details</a>
+                                        <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2 btn-view-details">View Details</a>
                                         {% if product.stock > 0 %}
                                             <!-- Quantity Controls (Hidden if not in cart) -->
                                             <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-cat-{{ product.id }}">
@@ -346,7 +392,7 @@
                                             </div>
 
                                             <!-- Add to Cart Button (Hidden if in cart) -->
-                                            <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %}" 
+                                            <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
                                                     id="add-btn-cat-{{ product.id }}"
                                                     data-id="{{ product.id }}">
                                                 Add to Cart

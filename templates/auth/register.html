@@ -1,124 +1,348 @@
 {% extends 'base.html' %}
 
-{% block title %}Register - Ecommerz{% endblock %}
+{% block title %}Register - {{ settings.site_name|default:"Ecommerz" }}{% endblock %}
 
 {% block content %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-sm">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-user-plus" style="font-size: 2.5rem; color: #007bff;"></i>
-                            <h3 class="mt-3">Create Account</h3>
-                            <p class="text-muted">Join Ecommerz today</p>
-                        </div>
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
+body {
+    background: #ecf0f3;
+}
+.error-text{
+    color:red;
+}
+.wrapper {
+    max-width: 500px;
+    min-height: 500px;
+    margin: 80px auto;
+    padding: 40px 30px 30px 30px;
+    background-color: #ecf0f3;
+    border-radius: 15px;
+    box-shadow: 13px 13px 20px #cbced1, -13px -13px 20px #fff;
+}
+
+
+
+.wrapper .name {
+    font-weight: 600;
+    font-size: 1.4rem;
+    letter-spacing: 1.3px;
+    padding-left: 10px;
+    color: #555;
+}
+
+.wrapper .form-field input {
+    width: 100%;
+    display: block;
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 1.2rem;
+    color: #666;
+    padding: 10px 15px 10px 10px;
+    /* border: 1px solid red; */
+}
+
+.wrapper .form-field {
+    padding-left: 10px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    box-shadow: inset 8px 8px 8px #cbced1, inset -8px -8px 8px #fff;
+}
+
+.wrapper .form-field .fas {
+    color: #555;
+}
+
+.wrapper .btn {
+    box-shadow: none;
+    width: 100%;
+    height: 40px;
+    background-color: #03A9F4;
+    color: #fff;
+    border-radius: 25px;
+    box-shadow: 3px 3px 3px #b1b1b1,
+        -3px -3px 3px #fff;
+    letter-spacing: 1.3px;
+}
+
+.wrapper .btn:hover {
+    background-color: #039BE5;
+}
+
+.wrapper a {
+    text-decoration: none;
+    font-size: 0.8rem;
+    color: #03A9F4;
+}
+
+.wrapper a:hover {
+    color: #039BE5;
+}
+
+@media(max-width: 380px) {
+    .wrapper {
+        margin: 30px 20px;
+        padding: 40px 15px 15px 15px;
+    }
+}
+    </style>
+    <div class="wrapper">
+        <div class="name"><i class="fas fa-user-plus"></i>Create Account in {{ settings.site_name|default:"Ecommerz" }}</div>
+        {% if messages %}
+        {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show auth-alert" role="alert">
+                                    <i class="fas fa-check-circle"></i> {{ message }}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                                 </div>
                             {% endfor %}
                         {% endif %}
 
                         {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
+                            <div class="alert alert-danger alert-dismissible fade show auth-alert" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> {{ form.non_field_errors }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endif %}
+        <form class="p-3 mt-3" method="post">
+            {% csrf_token %}
+            {% if form.first_name.errors %}
+            <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.first_name.errors.0 }}</small>
+            {% endif %}
+            <div class="form-field d-flex align-items-center">
+                <span class="far fa-user"></span>
+                <input type="text" name="first_name" id="id_first_name" class="auth-input" placeholder="Name" autofocus required>
+            
+            </div>
+            {% if form.phone.errors %}
+            <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.phone.errors.0 }}</small>
+            {% endif %}
+            <div class="form-field d-flex align-items-center">
+                <span class="fas fa-phone"></span>
+            <input type="tel" name="phone" id="id_phone" class="auth-input" placeholder="Phone Number *" required>
+            
+        </div>                                  
+            {% if form.email.errors %}
+                    <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.email.errors.0 }}</small>
+            {% endif %}
+
+            <div class="form-field d-flex align-items-center">
+                <span class="far fa-envelope"></span>
+                <input type="email" name="email" id="id_email" class="auth-input" placeholder="Email (Optional)">
+            
+            </div>
+            {% if form.password1.errors %}
+            <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.password1.errors.0 }}</small>
+            {% endif %}
+            
+            <small class="password-hint">
+             <i class="fas fa-info-circle"></i> Min 8 characters, mix of letters & numbers
+            </small>
+            <div class="form-field d-flex align-items-center">
+                <span class="fas fa-key"></span>
+                <input type="password" name="password1" id="id_password1" class="auth-input" placeholder="Password" required>
+          
+            </div>
+              
+            <small class="password-hint">
+                                    <i class="fas fa-info-circle"></i> Same as the First
+                                </small>
+            {% if form.password2.errors %}
+            <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.password2.errors.0 }}</small>
+            {% endif %}
+            <div class="form-field d-flex align-items-center">
+                <span class="fas fa-key"></span>
+                <input type="password" name="password2" id="id_password2" class="auth-input" placeholder="Confirm Password *" required>
+            
+            </div>
+            
+            <div class="form-group-auth form-check-auth">
+                <input type="checkbox" name="agree_terms" id="agree_terms" class="form-check-input" required>
+                I agree to <a href="" class="link-terms">Terms & Conditions</a> and <a href="" class="link-terms">Privacy Policy</a>
+            </div>
+            <button type="submit" class="btn mt-3">Register</button>
+        </form>
+        <div class="text-center fs-6">
+            Already have an account? <a href="{% url 'login' %}">Sign in</a>
+        </div>
+        <!-- Benefits Section -->
+                    <div class="auth-benefits mt-4">
+                        <h6 class="benefits-title">
+                            <i class="fas fa-star"></i> Account Benefits
+                        </h6>
+                        <div class="benefits-list">
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Quick & easy checkout</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Track your orders</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Exclusive member deals</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Save addresses & cards</span>
+                            </div>
+                        </div>
+                    </div>
+    {% comment %} <div class="auth-container auth-register-page">
+        <div class="auth-background"></div>
+        
+        <div class="container py-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6 col-lg-5 col-xl-4">
+                    <div class="auth-card auth-register-card">
+                        <!-- Header Section -->
+                        <div class="auth-header text-center mb-5">
+                            <div class="auth-icon-wrapper">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h2 class="auth-title mt-3">Join Us Today</h2>
+                            <p class="auth-subtitle">Create your account and start shopping with {{ settings.site_name|default:"Ecommerz" }}</p>
+                        </div>
+
+                        <!-- Messages -->
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show auth-alert" role="alert">
+                                    <i class="fas fa-check-circle"></i> {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger alert-dismissible fade show auth-alert" role="alert">
+                                <i class="fas fa-exclamation-circle"></i> {{ form.non_field_errors }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                             </div>
                         {% endif %}
 
-                        <form method="post">
+                        <!-- Form -->
+                        <form method="post" class="p-3 mt-3">
                             {% csrf_token %}
                             
-                            <div class="mb-3">
-                                <label for="id_first_name" class="form-label">First Name</label>
-                                <input type="text" name="first_name" id="id_first_name" class="form-control" placeholder="Enter your first name">
+                            <div class="form-group-auth">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-user"></i>
+                                    <input type="text" name="first_name" id="id_first_name" class="auth-input" placeholder="First Name">
+                                </div>
                                 {% if form.first_name.errors %}
-                                    <small class="text-danger">{{ form.first_name.errors.0 }}</small>
+                                    <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.first_name.errors.0 }}</small>
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3">
-                                <label for="id_email" class="form-label">Email Address (Optional)</label>
-                                <input type="email" name="email" id="id_email" class="form-control" placeholder="Enter your email">
+                            <div class="form-group-auth">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-envelope"></i>
+                                    <input type="email" name="email" id="id_email" class="auth-input" placeholder="Email (Optional)">
+                                </div>
                                 {% if form.email.errors %}
-                                    <small class="text-danger">{{ form.email.errors.0 }}</small>
+                                    <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.email.errors.0 }}</small>
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3">
-                                <label for="id_phone" class="form-label">Phone Number *</label>
-                                <input type="tel" name="phone" id="id_phone" class="form-control" placeholder="Enter your phone number" required>
+                            <div class="form-group-auth">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-phone"></i>
+                                    <input type="tel" name="phone" id="id_phone" class="auth-input" placeholder="Phone Number *" required>
+                                </div>
                                 {% if form.phone.errors %}
-                                    <small class="text-danger">{{ form.phone.errors.0 }}</small>
+                                    <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.phone.errors.0 }}</small>
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3">
-                                <label for="id_password1" class="form-label">Password *</label>
-                                <input type="password" name="password1" id="id_password1" class="form-control" placeholder="Create a strong password" required>
+                            <div class="form-group-auth">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" name="password1" id="id_password1" class="auth-input" placeholder="Create Password *" required>
+                                </div>
                                 {% if form.password1.errors %}
-                                    <small class="text-danger">{{ form.password1.errors.0 }}</small>
+                                    <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.password1.errors.0 }}</small>
                                 {% endif %}
-                                <small class="form-text text-muted d-block mt-2">
-                                    • At least 8 characters<br>
-                                    • Mix of letters, numbers, and symbols<br>
-                                    • Avoid personal information
+                                <small class="password-hint">
+                                    <i class="fas fa-info-circle"></i> Min 8 characters, mix of letters & numbers
                                 </small>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="id_password2" class="form-label">Confirm Password *</label>
-                                <input type="password" name="password2" id="id_password2" class="form-control" placeholder="Confirm your password" required>
+                            <div class="form-group-auth">
+                                <div class="input-wrapper">
+                                    <i class="fas fa-check"></i>
+                                    <input type="password" name="password2" id="id_password2" class="auth-input" placeholder="Confirm Password *" required>
+                                </div>
                                 {% if form.password2.errors %}
-                                    <small class="text-danger">{{ form.password2.errors.0 }}</small>
+                                    <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.password2.errors.0 }}</small>
                                 {% endif %}
                             </div>
 
-                            <div class="mb-3 form-check">
+                            <div class="form-group-auth form-check-auth">
                                 <input type="checkbox" name="agree_terms" id="agree_terms" class="form-check-input" required>
                                 <label class="form-check-label" for="agree_terms">
-                                    I agree to the <a href="#" class="text-decoration-none">Terms & Conditions</a> and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                                    I agree to <a href="" class="link-terms">Terms & Conditions</a> and <a href="" class="link-terms">Privacy Policy</a>
                                 </label>
                             </div>
 
-                            <div class="mb-3 form-check">
+                            <div class="form-group-auth form-check-auth">
                                 <input type="checkbox" name="subscribe_newsletter" id="subscribe_newsletter" class="form-check-input">
                                 <label class="form-check-label" for="subscribe_newsletter">
-                                    Subscribe to our newsletter for exclusive offers
+                                    <i class="fas fa-gift"></i> Subscribe for exclusive offers
                                 </label>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <button type="submit" class="btn-auth btn-auth-primary w-100">
                                 <i class="fas fa-user-plus"></i> Create Account
                             </button>
                         </form>
 
-                        <hr>
+                        <!-- Divider -->
+                        <div class="divider-auth">
+                            <span>OR</span>
+                        </div>
 
-                        <p class="text-center text-muted mb-0">
+                        <!-- Login Link -->
+                        <p class="text-center auth-footer-text mt-4">
                             Already have an account? 
-                            <a href="{% url 'login' %}" class="text-decoration-none fw-bold">Login here</a>
+                            <a href="{% url 'login' %}" class="link-auth-switch">Sign in here</a>
                         </p>
                     </div>
-                </div>
 
-                <!-- Benefits -->
-                <div class="mt-4">
-                    <div class="alert alert-light">
-                        <h6 class="alert-heading"><i class="fas fa-check-circle text-success"></i> Why create an account?</h6>
-                        <ul class="mb-0 ps-3">
-                            <li>Quick checkout process</li>
-                            <li>Track your orders</li>
-                            <li>Save your addresses</li>
-                            <li>Exclusive member offers</li>
-                            <li>Write product reviews</li>
-                        </ul>
+                    <!-- Benefits Section -->
+                    <div class="auth-benefits mt-4">
+                        <h6 class="benefits-title">
+                            <i class="fas fa-star"></i> Account Benefits
+                        </h6>
+                        <div class="benefits-list">
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Quick & easy checkout</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Track your orders</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Exclusive member deals</span>
+                            </div>
+                            <div class="benefit-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Save addresses & cards</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div> {% endcomment %}
     </div>
 {% endblock %}

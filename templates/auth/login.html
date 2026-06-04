@@ -1,91 +1,168 @@
 {% extends 'base.html' %}
 
-{% block title %}Login - Ecommerz{% endblock %}
+{% block title %}Login - {{ settings.site_name|default:"Ecommerz" }}{% endblock %}
 
 {% block content %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-sm">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <i class="fas fa-sign-in-alt" style="font-size: 2.5rem; color: #007bff;"></i>
-                            <h3 class="mt-3">Login</h3>
-                            <p class="text-muted">Sign in to your Ecommerz account</p>
-                        </div>
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
 
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                                    {{ message }}
-                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+body {
+    background: #ecf0f3;
+}
 
-                        {% if form.non_field_errors %}
-                            <div class="alert alert-danger">
-                                {{ form.non_field_errors }}
-                            </div>
-                        {% endif %}
+.wrapper {
+    max-width: 350px;
+    min-height: 500px;
+    margin: 80px auto;
+    padding: 40px 30px 30px 30px;
+    background-color: #ecf0f3;
+    border-radius: 15px;
+    box-shadow: 13px 13px 20px #cbced1, -13px -13px 20px #fff;
+}
 
-                        <form method="post">
-                            {% csrf_token %}
-                            
-                            <div class="mb-3">
-                                <label for="id_phone" class="form-label">Phone Number</label>
-                                <input type="tel" name="phone" id="id_phone" class="form-control" placeholder="Enter your phone number" required autofocus>
-                                {% if form.phone.errors %}
-                                    <small class="text-danger">{{ form.phone.errors.0 }}</small>
-                                {% endif %}
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="id_password" class="form-label">Password</label>
-                                <input type="password" name="password" id="id_password" class="form-control" placeholder="Enter your password" required>
-                                {% if form.password.errors %}
-                                    <small class="text-danger">{{ form.password.errors.0 }}</small>
-                                {% endif %}
-                            </div>
 
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input">
-                                <label class="form-check-label" for="remember_me">
-                                    Remember me
-                                </label>
-                            </div>
+.wrapper .name {
+    font-weight: 600;
+    font-size: 1.4rem;
+    letter-spacing: 1.3px;
+    padding-left: 10px;
+    color: #555;
+}
 
-                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </button>
-                        </form>
+.wrapper .form-field input {
+    width: 100%;
+    display: block;
+    border: none;
+    outline: none;
+    background: none;
+    font-size: 1.2rem;
+    color: #666;
+    padding: 10px 15px 10px 10px;
+    /* border: 1px solid red; */
+}
 
-                        <div class="text-center mb-3">
-                            <a href="#" class="text-decoration-none">Forgot your password?</a>
-                        </div>
+.wrapper .form-field {
+    padding-left: 10px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    box-shadow: inset 8px 8px 8px #cbced1, inset -8px -8px 8px #fff;
+}
 
-                        <hr>
+.wrapper .form-field .fas {
+    color: #555;
+}
 
-                        <p class="text-center text-muted mb-0">
-                            Don't have an account? 
-                            <a href="{% url 'register' %}" class="text-decoration-none fw-bold">Register here</a>
-                        </p>
-                    </div>
-                </div>
+.wrapper .btn {
+    box-shadow: none;
+    width: 100%;
+    height: 40px;
+    background-color: #03A9F4;
+    color: #fff;
+    border-radius: 25px;
+    box-shadow: 3px 3px 3px #b1b1b1,
+        -3px -3px 3px #fff;
+    letter-spacing: 1.3px;
+}
 
-                <!-- Social Login (Optional) -->
-                <div class="mt-4">
-                    <p class="text-center text-muted mb-3">Or continue with</p>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" disabled>
-                            <i class="fab fa-google"></i> Google
-                        </button>
-                        <button class="btn btn-outline-primary" disabled>
-                            <i class="fab fa-facebook"></i> Facebook
-                        </button>
-                    </div>
-                </div>
+.wrapper .btn:hover {
+    background-color: #039BE5;
+}
+
+.wrapper a {
+    text-decoration: none;
+    font-size: 0.8rem;
+    color: #03A9F4;
+}
+
+.wrapper a:hover {
+    color: #039BE5;
+}
+
+@media(max-width: 380px) {
+    .wrapper {
+        margin: 30px 20px;
+        padding: 40px 15px 15px 15px;
+    }
+}
+    </style>
+    <div class="wrapper" style="width: 400px;">
+        <div class="name">Ecommerz</div>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show auth-alert" role="alert">
+            <i class="fas fa-check-circle"></i> {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-        </div>
-    </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger alert-dismissible fade show auth-alert" role="alert">
+            <i class="fas fa-exclamation-circle"></i> {{ form.non_field_errors }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}        
+        <form class="p-3 mt-3" method="post">
+            {% csrf_token %}
+                        
+            
+            <div class="form-field d-flex align-items-center">
+                <span class="fas fa-phone"></span>
+            <input type="tel" name="phone" id="id_phone" class="auth-input" placeholder="Phone Number *" required autofocus>
+        {% if form.phone.errors %}
+            <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.phone.errors.0 }}</small>
+            {% endif %}           
+        </div>                                  
+
+            
+            <div class="form-field d-flex align-items-center">
+                <span class="fas fa-key"></span>
+                <input type="password" name="password" id="id_password" class="auth-input" placeholder="Password" required>
+             
+            </div>
+            {% if form.password.errors %}
+            <small class="error-text"><i class="fas fa-times-circle"></i> {{ form.password.errors.0 }}</small>
+            {% endif %}
+            <div class="form-group-auth form-check-auth">
+                <input type="checkbox" name="remember_me" id="remember_me" class="form-check-input">
+                    <label class="form-check-label" for="remember_me">
+                    Remember me for 30 days
+                    </label>
+            </div>
+            <button type="submit" class="btn mt-3"><i class="fas fa-sign-in-alt"></i>Login</button>
+        </form>
+        <div class="text-center mt-4 mb-4">
+                            <a href="" class="link-forgot-password">
+                                <i class="fas fa-question-circle"></i> Forgot your password?
+                            </a>
+                             <!-- Divider -->
+                            OR
+
+                        <!-- Register Link -->
+                            New to {{ settings.site_name|default:"Ecommerz" }}? 
+                            <a href="{% url 'register' %}" class="link-auth-switch">Create account</a>
+                        </div>
+
+     <div class="auth-features mt-5">
+                        <div class="feature-item">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>Fast Delivery</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Secure Checkout</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-undo"></i>
+                            <span>Easy Returns</span>
+                        </div>
+    </div>                  
+</div>
+    
 {% endblock %}
