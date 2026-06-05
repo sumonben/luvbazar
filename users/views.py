@@ -10,6 +10,17 @@ from .models import UserProfile
 from .forms import PhoneNumberRegistrationForm, PhoneNumberLoginForm
 from orders.models import Order
 from cart.views import migrate_session_cart_to_user
+import requests
+import random
+from django.conf import settings
+from django.core.cache import cache
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+
 
 
 def register(request):
@@ -234,12 +245,69 @@ def orders_list(request):
     return render(request, 'orders/orders_list.html', context)
 
 
-@login_required(login_url='login')
+#@login_required(login_url='login')
 def order_detail(request, order_id):
     """Display order details"""
-    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if request.user.is_authenticated:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+    else:
+        order = get_object_or_404(Order, id=order_id)
     
     context = {
         'order': order,
     }
     return render(request, 'orders/order_detail.html', context)
+
+def generate_and_store_otp(phone_number):
+    # Generate 6 digit OTP
+    # otp_code = str(random.randint(100000, 999999))
+    otp_code = "1234"  # For testing purposes, use a fixed OTP. Replace with random generation in production.    
+    # Store in Django cache for 5 minutes (300 seconds)
+    
+    return otp_code
+
+
+@require_http_methods(["POST"])
+def send_otp_sms(request):
+    try:
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number")
+        otp_code = generate_and_store_otp(phone_number)
+        print(f"Generated OTP for {phone_number}: {otp_code}")  # For testing, print the OTP to console
+        cache.set(f"otp_{phone_number}", otp_code, timeout=300)
+        # payload = {
+        #     "api_key": settings.SMS_API_KEY,
+        #     "type": "unicode", # Needed for standard character delivery in BD
+        #     "senderid": settings.SMS_SENDER_ID,
+        #     "contacts": phone_number,
+        #     "msg": f"Your OTP for Luv Bazar verification is {otp_code}."
+        # }
+        
+        # response = requests.post(settings.SMS_API_URL, json=payload)
+        
+        # if response.status_code == 200 and response.json().get("success"):
+        #     return True
+        # return False 
+        return JsonResponse({'status': 'success', 'message': 'Data processed successfully'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
+@require_http_methods(["POST"])
+def verify_otp_code(request):
+        data = json.loads(request.body)
+        phone_number = data.get("phone_number")
+        user_entered_otp = data.get("otp_code")
+        
+        cached_otp = cache.get(f"otp_{phone_number}")
+        print(f"Verifying OTP for {phone_number}. User entered: {user_entered_otp}, Cached OTP: {cached_otp}")  # For testing, print verification details to console
+        if not cached_otp:
+            return JsonResponse({'status': 'success', 'message': 'Session expired or invalid OTP'}, status=200)
+            
+        if cached_otp == user_entered_otp:
+            print(f"OTP verified for {phone_number}")  # For testing, print verification success to console
+            # OTP is correct, perform login or registration here
+            cache.delete(f"otp_{phone_number}") # Clear OTP after use
+            return JsonResponse({'status': 'success', 'message': 'Verification successful!'}, status=200)
+            
+        return JsonResponse({'status': 'success', 'message': 'Invalid OTP'}, status=200)

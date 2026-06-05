@@ -40,13 +40,13 @@ class SSLCommerzHelper:
                 'ipn_url': f"{settings.SITE_URL}/payments/ssl-commerz/ipn/",
                 'cus_name': order.first_name,
                 'cus_email': order.email,
-                'cus_add1': order.street_address,
-                'cus_city': order.shipping_city,
-                'cus_postcode': order.shipping_zip,
-                'cus_country': order.shipping_country,
+                'cus_add1': order.shipping_address,
+                'cus_city': order.district.name_en if order.district else '',
+                'cus_postcode': order.shipping_address.split()[-1] if order.shipping_address else '',
+                'cus_country': 'Bangladesh',
                 'cus_phone': order.phone,
                 'shipping_method': 'NO',
-                'product_name': 'E-commerce Products',
+                'product_name': 'Luv Bazar Products',
                 'product_category': 'Products',
                 'product_profile': 'general',
                 'multi_card': '',
@@ -110,6 +110,9 @@ def initiate_ssl_payment(request, order_id):
         order = get_object_or_404(Order, id=order_id)
         if order.user:
             return redirect('login')
+        else:
+            # For guest users, we can use session or order number for validation
+            pass
     
     # Check if payment already exists
     try:

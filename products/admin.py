@@ -27,7 +27,7 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('image',)
         }),
         ('Status & Rating', {
-            'fields': ('status', 'rating')
+            'fields': ('status', 'rating', 'unit')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),

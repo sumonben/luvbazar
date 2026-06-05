@@ -181,3 +181,6 @@ SSL_COMMERZ_SESSION_API = 'https://sandbox.sslcommerz.com/gwprocess/v4/gateway.p
 # Site configuration
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
 # For production, use: SSL_COMMERZ_SESSION_API = 'https://securepay.sslcommerz.com/gwprocess/v4/gateway.php'
+SMS_API_URL = "https://api.sms.net.bd/sendsms" # Replace with your gateway's URL
+SMS_API_KEY = "IArH0xDI1U1P7LrDRJG1qxYhiOZNM4O4ZE57FDM7"
+SMS_SENDER_ID = "Luv Bazar"

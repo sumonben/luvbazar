@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from products.views import index, products_list, product_detail, category_detail, about, contact, add_review
 from users.views import (
     register, login_view, logout_view, profile, profile_update,
-    change_password, password_reset, orders_list, order_detail
+    change_password, password_reset, orders_list, order_detail,send_otp_sms, verify_otp_code
 )
 from cart.views import (
     cart_view, add_to_cart, remove_from_cart, update_cart_item,
@@ -49,7 +49,8 @@ urlpatterns = [
     path('auth/profile/update/', profile_update, name='profile-update'),
     path('auth/change-password/', change_password, name='change-password'),
     path('auth/password-reset/', password_reset, name='password-reset'),
-    
+    path('auth/send-otp/', send_otp_sms, name='send-otp'),
+    path('auth/verify-otp/', verify_otp_code, name='verify-otp'),
     # Shopping Cart
     path('cart/', cart_view, name='cart'),
     path('cart/add/<int:product_id>/', add_to_cart, name='add-to-cart'),
