@@ -17,10 +17,10 @@
                         <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: #007bff; margin-bottom: 15px;"></i>
                         <h5 class="card-title">Address</h5>
                         <p class="card-text">
-                            Ecommerz Inc.<br>
-                            123 Shopping Street<br>
-                            New York, NY 10001<br>
-                            USA
+                            {{ settings.site_name|default:"Luv Bazar" }}<br>
+                            Bogura Sadar, Bogura<br>
+                           <br>
+                            Bangladesh
                         </p>
                     </div>
                 </div>
@@ -30,9 +30,9 @@
                         <i class="fas fa-phone" style="font-size: 2rem; color: #28a745; margin-bottom: 15px;"></i>
                         <h5 class="card-title">Phone</h5>
                         <p class="card-text">
-                            <strong>Main:</strong> +1 (555) 123-4567<br>
-                            <strong>Support:</strong> +1 (555) 123-4568<br>
-                            <strong>Toll Free:</strong> 1-800-SHOP-NOW
+                            <strong>Main:</strong> 01712539569<br>
+                            <strong>Support:</strong> 01684411451<br>
+                            <strong>Toll Free:</strong> `800-123-4567`
                         </p>
                     </div>
                 </div>
@@ -42,9 +42,9 @@
                         <i class="fas fa-envelope" style="font-size: 2rem; color: #ffc107; margin-bottom: 15px;"></i>
                         <h5 class="card-title">Email</h5>
                         <p class="card-text">
-                            <strong>General:</strong> info@ecommerz.com<br>
-                            <strong>Support:</strong> support@ecommerz.com<br>
-                            <strong>Sales:</strong> sales@ecommerz.com
+                            <strong>General:</strong> info@luvbazar.com<br>
+                            <strong>Support:</strong> support@luvbazar.com<br>
+                            <strong>Sales:</strong> sales@luvbazar.com
                         </p>
                     </div>
                 </div>
@@ -108,7 +108,7 @@
             </div>
         </div>
 
-        <!-- Business Hours -->
+        <!-- Business Hours
         <div class="row mt-5 border-top pt-5">
             <div class="col-lg-8 mx-auto">
                 <h3 class="text-center mb-4">Business Hours</h3>
@@ -131,6 +131,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </div>>
+    </div -->
 {% endblock %}

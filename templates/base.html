@@ -60,7 +60,10 @@
             flex-shrink: 0;
             margin-bottom: 0;
         }
-
+        .navbar-nav {
+            display: flex;
+            flex-direction: row;
+        }
         .navbar-toggler {
             position: absolute;
             right: 15px;
@@ -667,12 +670,12 @@
         </div>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav" style="float:right">
                 
-                <ul class="navbar-nav">
+                <ul class="navbar-nav" style="display: flex; flex-direction: row;">
                     <li class="nav-item" >
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#"  role="button" data-bs-toggle="dropdown" style="text-align: left    ;">Products</a>
+                    <li class="nav-item dropdown" >
+                        <a class="nav-link" href="#"  role="button" data-bs-toggle="dropdown" style="text-align: left    ;">Products</a>
                         <ul class="dropdown-menu" style="text-align: center;width:50%;margin: auto;" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" style="text-align: center;" href="{% url 'products-list' %}">All Products</a></li>
                             <hr class="dropdown-divider">
@@ -694,7 +697,7 @@
                     </li>
                     
                     <li class="nav-item dropdown">
-                      <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                      <a class="nav-link" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
                       <svg width="24" height="24"><use xlink:href="#user"></use></svg>
                       </a>
                          <ul class="dropdown-menu" style="text-align: center;width:50%;margin: auto;" aria-labelledby="userDropdown">
@@ -820,7 +823,7 @@
         <div class="container-lg">
             <div class="row">
                 <div class="col-md-3">
-                    <h5>About {{ settings.site_name|default:"Ecommerz" }}</h5>
+                    <h5>About {{ settings.site_name|default:"Luv Bazar" }}</h5>
                     <p>Your one-stop shop for quality products at great prices.</p>
                 </div>
                 <div class="col-md-3">
@@ -844,15 +847,15 @@
                 <div class="col-md-3">
                     <h5>Contact Us</h5>
                     <p>
-                        <strong>Email:</strong> {{ settings.email|default:"info@ecommerz.com" }}<br>
+                        <strong>Email:</strong> {{ settings.email|default:"info@luvbazar.com" }}<br>
                         <strong>Phone:</strong> {{ settings.phone|default:"01712539569" }}<br>
-                        <strong>Address:</strong> {{ settings.address|default:"Pabana Sadar, Pabna" }}
+                        <strong>Address:</strong> {{ settings.address|default:"Bogura Sadar, Bogura" }}
                     </p>
                 </div>
             </div>
             <hr style="background-color: #555;">
             <div class="text-center">
-                <p>&copy; {% now "Y" %} {{ settings.footer_copyright|default:"Adex Lungi. All rights reserved." }} | Built with Django</p>
+                <p>&copy; {% now "Y" %} {{ settings.footer_copyright|default:"Luv Bazar. All rights reserved." }} | Built by <a href="https://www.ictparkbd.com" target="_blank">ICTpark Bangladesh</a></p>
                 <div>
                     <a href="{{ settings.facebook|default:'#' }}" style="margin: 0 10px;"><i class="fab fa-facebook"></i></a>
                     <a href="{{ settings.twitter|default:'#' }}" style="margin: 0 10px;"><i class="fab fa-twitter"></i></a>

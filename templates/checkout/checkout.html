@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Checkout - {{ settings.site_name }}{% endblock %}
+{% block title %}Checkout - {{ settings.site_name|default:"ICTpark Bazar" }}{% endblock %}
 
 {% block content %}
 <style>
@@ -388,7 +388,7 @@
                                     <h6 class="mb-0">{{ item.product.name }}</h6>
                                     <small class="text-muted">Qty: {{ item.quantity }}</small>
                                 </div>
-                                <span class="fw-bold">৳{{ item.get_total_price }}</span>
+                                <span class="fw-bold">{{ item.product.price }} &#10006; {{ item.quantity }} = {{ item.get_total_price }}(৳)</span>
                             </div>
                         </div>
                         {% endfor %}

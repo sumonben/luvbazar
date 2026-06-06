@@ -206,7 +206,7 @@ def product_detail(request, slug):
     related_products = Product.objects.filter(
         status='active',
         category=product.category
-    ).exclude(id=product.id)[:4]
+    ).exclude(id=product.id)[:14]
     
     # Check if in cart
     in_cart = False

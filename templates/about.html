@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %}About Us - Ecommerz{% endblock %}
+{% block title %}About Us - {{ settings.site_name|default:"Luv Bazar" }}{% endblock %}
 
 {% block content %}
     <div class="hero" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white;">
-        <h1>About Ecommerz</h1>
+        <h1>About {{ settings.site_name|default:"Luv Bazar" }}</h1>
         <p>Your trusted online shopping destination</p>
     </div>
 
@@ -13,11 +13,11 @@
         <div class="row mb-5">
             <div class="col-lg-6 mb-4">
                 <h2>Our Mission</h2>
-                <p>At Ecommerz, we believe that shopping should be easy, affordable, and enjoyable. Our mission is to provide customers with a wide selection of quality products at competitive prices, backed by exceptional customer service.</p>
+                <p>At {{ settings.site_name|default:"Luv Bazar" }}, we believe that shopping should be easy, affordable, and enjoyable. Our mission is to provide customers with a wide selection of quality products at competitive prices, backed by exceptional customer service.</p>
                 <p>We're committed to making online shopping accessible to everyone, with fast shipping, easy returns, and secure payments.</p>
             </div>
             <div class="col-lg-6">
-                <img src="https://via.placeholder.com/400x300" alt="Our Mission" class="img-fluid rounded">
+                <img src="{{ settings.site_logo.url | default:'' }}" alt="Our Mission" class="img-fluid rounded">
             </div>
         </div>
 
@@ -62,7 +62,7 @@
             <div class="col-md-3 mb-4">
                 <div class="card text-center h-100">
                     <div class="card-body">
-                        <i class="fas fa-dollar-sign" style="font-size: 2rem; color: #28a745; margin-bottom: 15px;"></i>
+                        <i class="fas fa-bdt" style="font-size: 2rem; color: #28a745; margin-bottom: 15px;">&#2547;</i>
                         <h5 class="card-title">Best Prices</h5>
                         <p class="card-text">We offer competitive pricing with regular discounts and promotions.</p>
                     </div>

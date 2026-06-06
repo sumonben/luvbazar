@@ -7,35 +7,38 @@
 {% block content %}
     
 <style>
-    .icon-responsive {
-  height: calc(133px + (270 - 133) * ((100vw - 480px) / (1280 - 480)));
-}
+    
+   .icon-responsive {
+        height: calc(133px + (270 - 133) * ((100vw - 480px) / (1280 - 480)));
+    }
 
 
-    @media (max-width: 768px) {
+    @media (max-width: 768.8px) {
     .col-md-4 {
         flex: 0 0 auto;
         width: 50%;
     }
+     .col-md-4 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
     .btn-view-details,.btn-add-to-cart{
-        font-size: 0.7rem;
+        font-size: 0.8rem;
         padding: 0.25rem 0.25rem;
     }
     .h5-product-name{
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
     .h5-price{
-        font-size: 0.8rem;
+        font-size: 0.9rem;
     }
     .div-price-rating {
         font-size: 0.8rem;
         display: flex;
         flex-direction: column;
     }
-    .owl-item {
-            width: calc(55px + 25vw) !important;
-            margin: 0 3px !important;
-        }
+   
+   
     }
     @media(max-width: 360px) {
 
@@ -52,6 +55,19 @@
             padding: 0.25rem 0.25rem;
             display: none;
         }
+
+        
+    .h5-product-name{
+        font-size: 0.8rem;
+    }
+    .h5-price{
+        font-size: 0.8rem;
+    }
+    .div-price-rating {
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+    }
     }
     </style>
     <section class="hero-section-carousel" style="background-repeat: no-repeat;background-size: cover;">
@@ -337,77 +353,81 @@
                 </div>
                 <div class="owl-carousel owl-theme product-carousel">
                     {% for product in category.products.all %}
-                        <div class="item p-2" >
-                            <div class="card h-100 shadow-sm product-card position-relative ">
-                                <!-- Quick View Button -->
-                                <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm quick-view-btn" 
-                                        data-bs-toggle="modal" 
-                                        data-bs-target="#quickViewModal" 
-                                        data-slug="{{ product.slug }}"
-                                        title="Quick View"
-                                        style="z-index: 10;">
+                   
+                    <div class="card h-100 shadow-sm product-card position-relative">
+                        <!-- Quick View Button -->
+                        <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 rounded-circle shadow-sm quick-view-btn" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#quickViewModal" 
+                                data-slug="{{ product.slug }}"
+                                title="Quick View"
+                                style="z-index: 10;">
                             <a href="{% url 'product-detail' product.slug %}"><i class="fas fa-eye"></i></a>
-                                </button>
+                        </button>
 
-                                <!-- Product Image -->
-                                <a href="{% url 'product-detail' product.slug %}">
-                                    {% if product.image %}
-                                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="object-fit: cover;" loading="lazy">
-                                    {% else %}
-                                    <div class="d-flex align-items-center justify-content-center bg-light icon-responsive" style="object-fit: cover;">
-                                        <i class="fas fa-box fa-3x text-muted "></i>
-                                    </div>
-                                    {% endif %}
-                                </a>
-                                
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title text-truncate">
-                                        <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark h5-product-name">{{ product.name }}</a>
+                        <!-- Product Image -->
+                        <a href="{% url 'product-detail' product.slug %}">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style=" object-fit: cover;" loading="lazy">
+                            {% else %}
+                            <div class="d-flex align-items-center justify-content-center bg-light icon-responsive" style="object-fit: cover;">
+                                <i class="fas fa-box fa-3x text-muted "></i>
+                            </div>
+                            {% endif %}
+                        </a>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-truncate h5-product-name">
+                                <a href="{% url 'product-detail' product.slug %}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                            </h5>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3 div-price-rating">
+                                <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 }} 
+                                {% if product.unit %}
+                                    / {{ product.unit }}
+                                {% endif %}
                                     </h5>
-                                    
-                                    <div class="d-flex justify-content-between align-items-center mb-3 div-price-rating">
-                                        <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price }}</h5>
-                                        <div class="product-rating text-warning small">
-                                            {% for i in "12345" %}
-                                                {% if forloop.counter <= product.rating %}
-                                                    <i class="fas fa-star"></i>
-                                                {% else %}
-                                                    <i class="far fa-star"></i>
-                                                {% endif %}
-                                            {% endfor %}
-                                            <span class="text-muted">({{ product.reviews.count }})</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-auto">
-                                        <a href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2 btn-view-details">View Details</a>
-                                        {% if product.stock > 0 %}
-                                            <!-- Quantity Controls (Hidden if not in cart) -->
-                                            <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-cat-{{ product.id }}">
-                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                                <input type="text" class="form-control form-control-sm text-center bg-white" 
-                                                       value="{{ cart_quantities|get_item:product.id|default:0 }}" 
-                                                       id="qty-input-cat-{{ product.id }}" readonly>
-                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
-                                                    <i class="fas fa-plus"></i>
-                                                </button>
-                                            </div>
-
-                                            <!-- Add to Cart Button (Hidden if in cart) -->
-                                            <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
-                                                    id="add-btn-cat-{{ product.id }}"
-                                                    data-id="{{ product.id }}">
-                                                Add to Cart
-                                            </button>
+                                <div class="product-rating text-warning small">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= product.rating %}
+                                            <i class="fas fa-star"></i>
                                         {% else %}
-                                            <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+                                            <i class="far fa-star"></i>
                                         {% endif %}
-                                    </div>
+                                    {% endfor %}
+                                    <span class="text-muted">({{ product.reviews.count }})</span>
                                 </div>
                             </div>
+
+                            <div class="mt-auto">
+                                <a  href="{% url 'product-detail' product.slug %}" class="btn btn-outline-primary w-100 mb-2 btn-view-details">View Details</a>
+                                {% if product.stock > 0 %}
+                                    <!-- Quantity Controls (Hidden if not in cart) -->
+                                    <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="text" class="form-control form-control-sm text-center bg-white" 
+                                               value="{{ cart_quantities|get_item:product.id|default:0 }}" 
+                                               id="qty-input-{{ product.id }}" readonly>
+                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Add to Cart Button (Hidden if in cart) -->
+                                    <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
+                                            id="add-btn-{{ product.id }}"
+                                            data-id="{{ product.id }}">
+                                        Add to Cart
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
+                                {% endif %}
+                            </div>
                         </div>
+                    </div>
+                
                     {% endfor %}
                 </div>
             </div>
@@ -622,5 +642,24 @@
             }
         });
     });
+   $('.owl-carousel').owlCarousel({
+    loop: false,
+    dots:false,
+    nav:true,
+    navText: ['<i class="fas fa-chevron-left"></i>', '<i class  ="fas fa-chevron-right"></i>'],
+    margin: 10,
+    responsiveClass: true,
+    responsive: {
+        0: {
+            items: 2 // Displays 2 elements on mobile screens
+        },
+        768: {
+            items: 3 // Displays 3 elements on tablets
+        },
+        1000: {
+            items: 4 // Displays 4 elements on desktop
+        }
+    }
+});
 </script>
 {% endblock %}
