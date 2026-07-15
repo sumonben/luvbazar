@@ -201,6 +201,9 @@ def products_list(request):
 
 def product_detail(request, slug):
     """Product detail page"""
+    cart_product_ids=[]
+    cart_quantities={}
+    
     product = get_object_or_404(Product, slug=slug, status='active')
     reviews = product.reviews.all().order_by('-created_at')
     related_products = Product.objects.filter(
