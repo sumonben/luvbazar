@@ -25,7 +25,7 @@ from users.views import (
 )
 from cart.views import (
     cart_view, add_to_cart, remove_from_cart, update_cart_item,
-    clear_cart, checkout, order_confirmation, cart_count
+    clear_cart, checkout, order_confirmation, cart_count, get_address_by_phone
 )
 
 urlpatterns = [
@@ -58,6 +58,7 @@ urlpatterns = [
     path('cart/update/<int:item_id>/', update_cart_item, name='update-cart-item'),
     path('cart/clear/', clear_cart, name='clear-cart'),
     path('cart/count/', cart_count, name='cart-count'),
+    path('api/address-by-phone/', get_address_by_phone, name='address-by-phone'),
     
     # Checkout & Orders
     path('checkout/', checkout, name='checkout'),

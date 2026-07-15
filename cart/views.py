@@ -322,6 +322,39 @@ def cart_count(request):
     return JsonResponse({'count': count})
 
 
+@require_http_methods(["GET"])
+def get_address_by_phone(request):
+    """Return last saved shipping address for a given phone number"""
+    phone = request.GET.get('phone', '').strip()
+    if not phone:
+        return JsonResponse({'found': False})
+
+    from orders.models import Order
+    order = Order.objects.filter(
+        phone=phone
+    ).exclude(
+        shipping_address__isnull=True
+    ).exclude(
+        shipping_address=''
+    ).select_related('division', 'district', 'upazilla').order_by('-created_at').first()
+
+    if not order:
+        return JsonResponse({'found': False})
+
+    return JsonResponse({
+        'found': True,
+        'first_name': order.first_name or '',
+        'email': order.email or '',
+        'shipping_address': order.shipping_address or '',
+        'division_id': order.division_id,
+        'division_name': order.division.name_en if order.division else '',
+        'district_id': order.district_id,
+        'district_name': order.district.name_en if order.district else '',
+        'upazilla_id': order.upazilla_id,
+        'upazilla_name': order.upazilla.name_en if order.upazilla else '',
+    })
+
+
 def order_page(request):
     """
     Order page for product orders

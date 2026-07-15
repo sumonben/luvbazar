@@ -240,14 +240,15 @@
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
+                                
+                                <div class="col-md-6">
+                                <label class="form-label">Phone Number *</label>
+                                    <input type="tel" class="form-control" id="id_phone" name="phone" value="{% if request.user.is_authenticated %}{{ request.user.userprofile.phone }}{% endif %}" required>
+                                </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Receiver Name *</label>
                                     <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ request.user.first_name }}" required>
                                 </div>
-                                <div class="col-md-6">
-                                <label class="form-label">Phone Number *</label>
-                                <input type="tel" class="form-control" id="id_phone" name="phone" value="{% if request.user.is_authenticated %}{{ request.user.userprofile.phone }}{% endif %}" required>
-                            </div>
                                 <div class="mb-3">
                                     <label class="form-label">Email Address (Optional)</label>
                                     <input type="email" id="id_email" class="form-control" name="email" value="{{ request.user.email }}">
@@ -263,13 +264,13 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Division *</label>
+                                    <label class="form-label">Division/Region *</label>
                                     <select class="form-select" id="division" name="division" required>
                                         <option value="">Select a division</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">District *</label>
+                                    <label class="form-label">District/City *</label>
                                     <select class="form-select" id="district" name="district" required>
                                         <option value="">Select a district</option>
                                     </select>
@@ -278,17 +279,17 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Upazila *</label>
+                                    <label class="form-label">Upazila /Ward*</label>
                                     <select class="form-select" id="upazila" name="upazila" required>
                                         <option value="">Select an upazila</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <!-- <div class="col-md-6">
                                     <label class="form-label">Union *</label>
                                     <select class="form-select" id="union" name="union" required>
                                         <option value="">Select a union</option>
                                     </select>
-                                </div>
+                                </div> -->
                             </div>
 
                             <div class="form-check mb-3">
@@ -311,7 +312,7 @@
                                 
                                 <!-- SSL Commerz -->
                                 <div class="form-check payment-option p-3 rounded mb-3" >
-                                    <input class="form-check-input" type="radio" name="payment_method" id="sslcommerz" value="sslcommerz" >
+                                    <input class="form-check-input" type="radio" name="payment_method" id="sslcommerz" value="sslcommerz"  disabled>
                                     <label class="form-check-label w-100" for="sslcommerz">
                                         <div class="d-flex align-items-center justify-content-between">
                                             <div>
@@ -338,7 +339,7 @@
                                 </div>
 
                                 <!-- Bank Transfer -->
-                                <div class="form-check payment-option p-3 rounded mb-3">
+                                <!-- <div class="form-check payment-option p-3 rounded mb-3">
                                     <input class="form-check-input" type="radio" name="payment_method" id="bank" value="bank_transfer">
                                     <label class="form-check-label w-100" for="bank">
                                         <div class="d-flex align-items-center justify-content-between">
@@ -349,7 +350,7 @@
                                             <i class="fas fa-university text-primary"></i>
                                         </div>
                                     </label>
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                     </div>
@@ -731,7 +732,7 @@
             });
         modal.classList.add("active");
         setTimeout(() => inputs[0].focus(), 100); // Focus the first input field on trigger
-        startResendTimer(30);
+        startResendTimer(90);
         });
 
         const closeModal = () => {
@@ -857,6 +858,96 @@
         startResendTimer(30);
         });
     
+</script>
+
+<script>
+    // Auto-fill shipping address when phone number is entered
+    let phoneAutoFillTimeout = null;
+
+    document.getElementById('id_phone').addEventListener('input', function() {
+        clearTimeout(phoneAutoFillTimeout);
+        const phone = this.value.replace(/\D/g, '');
+        if (phone.length >= 11) {
+            phoneAutoFillTimeout = setTimeout(() => autoFillAddressByPhone(phone), 700);
+        }
+    });
+
+    function autoFillAddressByPhone(phone) {
+        fetch('/api/address-by-phone/?phone=' + encodeURIComponent(phone))
+            .then(r => r.json())
+            .then(data => {
+                if (!data.found) return;
+
+                // Fill shipping address text
+                if (data.first_name) {
+                    document.getElementById('id_first_name').value = data.first_name;
+                }
+                if (data.email) {
+                    document.getElementById('id_email').value = data.email;
+                }
+                if (data.shipping_address) {
+                    document.getElementById('id_shipping_address').value = data.shipping_address;
+                }
+
+                if (!data.division_id) return;
+
+                const divisionSelect = document.getElementById('division');
+                const districtSelect = document.getElementById('district');
+                const upazilaSelect  = document.getElementById('upazila');
+
+                function applySelections() {
+                    // Select division
+                    divisionSelect.value = data.division_id;
+                    if (!data.district_id) return;
+
+                    // Load districts for chosen division then select
+                    fetch('{% url "region:api-districts" %}?division_id=' + data.division_id)
+                        .then(r => r.json())
+                        .then(distData => {
+                            districtSelect.innerHTML = '<option value="">Select a district</option>';
+                            distData.districts.forEach(d => {
+                                const opt = document.createElement('option');
+                                opt.value = d.id;
+                                opt.textContent = d.name_en || d.name;
+                                districtSelect.appendChild(opt);
+                            });
+                            districtSelect.value = data.district_id;
+
+                            if (!data.upazilla_id) return;
+
+                            // Load upazilas for chosen district then select
+                            fetch('{% url "region:api-upazillas" %}?district_id=' + data.district_id)
+                                .then(r => r.json())
+                                .then(upazilaData => {
+                                    upazilaSelect.innerHTML = '<option value="">Select an upazila</option>';
+                                    upazilaData.upazillas.forEach(u => {
+                                        const opt = document.createElement('option');
+                                        opt.value = u.id;
+                                        opt.textContent = u.name_en || u.name;
+                                        upazilaSelect.appendChild(opt);
+                                    });
+                                    upazilaSelect.value = data.upazilla_id;
+                                })
+                                .catch(err => console.error('Upazila lookup error:', err));
+                        })
+                        .catch(err => console.error('District lookup error:', err));
+                }
+
+                // Divisions may still be loading — wait if needed
+                if (divisionSelect.options.length > 1) {
+                    applySelections();
+                } else {
+                    const observer = new MutationObserver(() => {
+                        if (divisionSelect.options.length > 1) {
+                            observer.disconnect();
+                            applySelections();
+                        }
+                    });
+                    observer.observe(divisionSelect, { childList: true });
+                }
+            })
+            .catch(err => console.error('Address lookup error:', err));
+    }
 </script>
 
 {% endblock %}

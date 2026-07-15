@@ -103,8 +103,8 @@
 
         .cart-badge {
             position: absolute;
-            top: -8px;
-            right: -8px;
+            top: -40px;
+            right: -16px;
             background-color: var(--danger-color);
             color: white;
             border-radius: 50%;
@@ -409,6 +409,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Open+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
     <style>
        .navbar {
             background: linear-gradient(135deg, green, #ec9e71);
@@ -550,6 +551,107 @@
        
     </style>
     {% block extra_css %}{% endblock %}
+<style>
+    .category-top-section{
+        display:none;
+    }
+    .h5-product-name{
+        text-align: center;
+    }
+   .icon-responsive {
+        height: calc(133px + (270 - 133) * ((100vw - 480px) / (1280 - 480)));
+    }
+ 
+   .card-img-top {
+        height: calc(133px + (270 - 133) * ((100vw - 480px) / (1280 - 480)));
+    }
+   .category-img{
+        width: calc(120px + (160 - 120) * ((100vw - 480px) / (1280 - 480)));
+        height: calc(120px + (160 - 120) * ((100vw - 480px) / (1280 - 480)));
+        border-width: 8px; 
+        border-color: #fdfdfd; 
+        border-style: solid;
+        object-fit: cover;
+     }
+     .product-size {
+        field-sizing: content;
+        width: calc(120px + (160 - 120) * ((100vw - 480px) / (1280 - 480)));
+        text-align: center;
+     }
+    @media (max-width: 768.8px) {
+         
+        .product-card{
+            margin:0;
+            padding:3px;
+        }
+        .category-top-section{
+            display:block;
+        }
+        .category-down-section{
+            display:none;
+
+        }
+        .card-img-top {
+            height: 160px !important;
+        }
+    .col-md-4 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+     .col-md-4 {
+        flex: 0 0 auto;
+        width: 50%;
+    }
+    .btn-view-details,.btn-add-to-cart{
+        font-size: 0.8rem;
+        padding: 0.25rem 0.25rem;
+    }
+    .h5-product-name{
+        font-size: 0.9rem;
+    }
+    .h5-price{
+        font-size: 0.9rem;
+    }
+    .div-price-rating {
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+    }
+   
+   
+    }
+
+    @media(max-width: 360px ) {
+
+        
+        .card-img-top {
+            height: 120px !important;
+        }
+         .btn-add-to-cart{
+            font-size: 0.6rem;
+            padding: 0.25rem 0.25rem;
+        }
+        .btn-view-details{
+            font-size: 0.6rem;
+            padding: 0.25rem 0.25rem;
+            display: none;
+        }
+
+        
+    .h5-product-name{
+        font-size: 0.8rem;
+    }
+    .h5-price{
+        font-size: 0.8rem;
+    }
+    .div-price-rating {
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+    }
+    }
+    </style>
+
 </head>
 <body>
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
@@ -661,7 +763,8 @@
           </div>
           <div>
             <a class="position-relative" href="{% url 'cart' %}">
-                <svg width="50" height="50" style="color: #fff;"><use xlink:href="#shopping-bag"></use></svg>
+                <!-- <svg width="50" height="50" style="color: #fff;"><use xlink:href="#shopping-bag"></use></svg> -->
+                <i class="fas fa-shopping-cart" style=" color: #fff; height: 50px; width: 50px;font-size: 50px;"></i>
                 <span id="cart-count" class="cart-badge badge rounded-pill bg-danger {% if not cart_item_count or cart_item_count == 0 %}d-none{% endif %}">
                     {{ cart_item_count|default:0 }}
                 </span>

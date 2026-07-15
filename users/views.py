@@ -274,20 +274,21 @@ def send_otp_sms(request):
         phone_number = data.get("phone_number")
         otp_code = generate_and_store_otp(phone_number)
         print(f"Generated OTP for {phone_number}: {otp_code}")  # For testing, print the OTP to console
-        cache.set(f"otp_{phone_number}", otp_code, timeout=300)
-        # payload = {
-        #     "api_key": settings.SMS_API_KEY,
-        #     "type": "unicode", # Needed for standard character delivery in BD
-        #     "senderid": settings.SMS_SENDER_ID,
-        #     "contacts": phone_number,
-        #     "msg": f"Your OTP for Luv Bazar verification is {otp_code}."
-        # }
-        
-        # response = requests.post(settings.SMS_API_URL, json=payload)
-        
-        # if response.status_code == 200 and response.json().get("success"):
-        #     return True
-        # return False 
+        cache.set(f"otp_{phone_number}", otp_code, timeout=90)
+        import urllib.parse
+        message = f"Your OTP for Ornaments BD verification is {otp_code}. Valid for 90 seconds."
+        # API_URL = (
+        #     f"http://bulksmsbd.net/api/smsapi"
+        #     f"?api_key={settings.SMS_API_KEY}"
+        #     f"&type=text"
+        #     f"&number={phone_number}"
+        #     f"&senderid={settings.SMS_SENDER_ID}"
+        #     f"&message={urllib.parse.quote(message)}"
+        # )
+        # try:
+        #     sms_response = requests.get(API_URL, timeout=10)
+        # except requests.RequestException:
+        #     pass  # OTP is cached; SMS failure is non-fatal
         return JsonResponse({'status': 'success', 'message': 'Data processed successfully'}, status=200)
 
     except json.JSONDecodeError:

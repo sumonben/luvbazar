@@ -69,9 +69,174 @@
         flex-direction: column;
     }
     }
+    
+    </style>
+
+    <style>
+        .category-top-section{
+        display:none;
+    }
+        .owl-nav button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50% !important;
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        color: #333 !important;
+        font-size: 20px !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s;
+        z-index: 100;
+    }
+    .owl-nav button:hover {
+        background-color: #fff !important;
+        color: var(--primary-color) !important;
+    }
+    .owl-nav button.owl-prev { left: 0; }
+    .owl-nav button.owl-next { right: 0; }
+    
+    /* Swiper Category Carousel Styles */
+    .category-carousel {
+        position: relative;
+        padding: 20px 0;
+        max-width: 100%;
+        overflow: hidden;
+    }
+    
+    .category-carousel .swiper-slide {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        padding: 0 15px;
+    }
+    
+    .category-carousel .swiper-slide a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.3s ease;
+    }
+    
+    .category-carousel .swiper-slide a:hover {
+        transform: translateY(-10px);
+    }
+    
+    .category-carousel .swiper-slide img {
+
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .category-carousel .swiper-slide img:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .swiper-buttons {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .category-carousel-prev,
+    .category-carousel-next {
+        position: relative !important;
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background-color: #ffc107 !important;
+        color: #333 !important;
+        border: none !important;
+        font-size: 18px !important;
+        font-weight: bold !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+    }
+    
+    .category-carousel-prev:hover,
+    .category-carousel-next:hover {
+        background-color: var(--primary-color) !important;
+        color: white !important;
+        transform: scale(1.1);
+    }
+    
+    .category-carousel-prev:disabled,
+    .category-carousel-next:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    @media(max-width: 768.9px) {
+        .cate
+        .swiper-wrapper{
+            max-width: 540px;
+        }
+        .swiper-pagination {
+            display: inline-block !important;
+        }
+        .category-carousel .swiper-slide {
+            padding: 0 0px;
+            flex-shrink: 1;
+        }
+        .category-img-top {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid #ffffff;
+        }
+        .category-title-top {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #110101;
+        }
+        .category-top-section{
+        display:block;
+    }
+        
+    }
     </style>
     <section class="hero-section-carousel" style="background-repeat: no-repeat;background-size: cover;">
-      <div class="container-lg">
+      
+<section class="py-5 overflow-hidden category-top-section" style="background-repeat: no-repeat;background-size: cover;">
+      <div class="container-lg" style="margin:2px; padding:0;">
+       
+        <div class="row" style="margin-top: -20px; margin-bottom: -20px; margin-left: -15px; margin-right: -15px;padding: 0;">
+          <div class="col-md-12">
+
+            <div class="category-carousel swiper" style="background:#ffffff80; border-radius: 10px;">
+              <div class="swiper-wrapper owl-carousel-category owl-theme" >
+                {% for category in categories %}
+                <div class="swiper-slide">
+                  <a href="{% url 'category' category.slug %}" class="text-center text-decoration-none d-block">
+                    <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/category-thumb-1.jpg' %}{% endif %}" class="rounded-circle category-img-top" alt="{{ category.name }}" title="{{ category.name }}" loading="lazy"> 
+                    <h4 class="category-title-top" style="font-family: 'SolaimanLipi', sans-serif;">{{ category.name}}</h4>
+                  </a>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="swiper-pagination"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+      <hr>
+    </section>
+      
+        <div class="container-lg">
         <div class="row">
           <div class="col-lg-6 pt-5 mt-5">
             <h2><span class="fw-bold text-primary">Organic</span> Foods at your <span class="fw-bold">Doorsteps</span></h2>
@@ -153,15 +318,14 @@
       </div>
     </section>
 
-
-        <section class="py-5 overflow-hidden">
+<section class="py-5 overflow-hidden category-down-section">
       <div class="container-lg">
         <div class="row">
           <div class="col-md-12">
-
+<hr>
             <div class="section-header d-flex flex-wrap justify-content-between mb-5">
               <h2 class="section-title">Category</h2>
-
+                
               <div class="d-flex align-items-center">
                 <a href="{% url 'products-list' %}" class="btn btn-primary me-2">View All</a>
                 <div class="swiper-buttons">
@@ -176,17 +340,18 @@
         <div class="row">
           <div class="col-md-12">
 
-            <div class="category-carousel swiper">
+            <div class="category-carousel-down swiper">
               <div class="swiper-wrapper">
                 {% for category in categories %}
-                <div class="swiper-slide">
+                <div class="swiper-slide" style="height:auto">
                   <a href="{% url 'category' category.slug %}" class="text-center text-decoration-none d-block">
-                    <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/category-thumb-1.jpg' %}{% endif %}" class="rounded-circle" alt="{{ category.name }}" title="{{ category.name }}" style="width: 120px; height: 120px; object-fit: cover;">
-                    <h4 class="fs-6 mt-3 fw-normal category-title text-dark">{{ category.name }}</h4>
+                    <img src="{% if category.image %}{{ category.image.url }}{% else %}{% static 'images/category-thumb-1.jpg' %}{% endif %}" class="rounded-circle category-img" alt="{{ category.name }}" title="{{ category.name }}" loading="lazy"> 
+                    <h4 class="fs-6 mt-3 fw-normal category-title text-dark" style="font-family: 'SolaimanLipi', sans-serif;">{{ category.name }}</h4>
                   </a>
                 </div>
                 {% endfor %}
               </div>
+              <div class="swiper-pagination category-down-pagination"></div>
             </div>
 
           </div>
@@ -523,8 +688,7 @@
     }
     
     .category-carousel .swiper-slide img {
-        width: 120px;
-        height: 120px;
+
         object-fit: cover;
         border-radius: 50%;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -574,6 +738,30 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
+    @media(max-width: 768.9px) {
+        .swiper-wrapper{
+            max-width: 540px;
+        }
+        .swiper-pagination {
+            display: inline-block !important;
+        }
+        .category-carousel .swiper-slide {
+            padding: 0 0px;
+            flex-shrink: 1;
+        }
+        .category-img-top {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 5px solid #ffffff;
+        }
+        .category-title-top {
+            margin-top: 5px;
+            font-size: 12px;
+            color: #110101;
+        }
+        
+    }
 </style>
 {% endblock %}
 
@@ -583,7 +771,13 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 <script>
+   
+   
+
+        
     $(document).ready(function(){
+        
+
         $(".product-carousel").owlCarousel({
             loop: false,
             margin: 10,
@@ -597,9 +791,30 @@
                 992:{ items:4 }
             }
         });
+
+        
         
         // Initialize Category Carousel with Swiper
         const categorySwiper = new Swiper('.category-carousel', {
+            slidesPerView: 'auto',
+            watchOverflow: true,
+            spaceBetween: 20,
+            centeredSlides: false,
+            loop: false,
+            pagination: {
+                el: '.category-carousel .swiper-pagination',
+                clickable: true,
+            },
+            keyboard: {
+                enabled: true,
+                onlyInViewport: false,
+            },
+        });
+
+       
+    });
+
+    const categorySwiperDown = new Swiper('.category-carousel-down', {
             slidesPerView: 'auto',
             spaceBetween: 20,
             freeMode: true,
@@ -613,6 +828,10 @@
             navigation: {
                 nextEl: '.category-carousel-next',
                 prevEl: '.category-carousel-prev',
+            },
+            pagination: {
+                el: '.category-down-pagination',
+                clickable: true,
             },
             keyboard: {
                 enabled: true,
@@ -641,7 +860,9 @@
                 }
             }
         });
-    });
+
+
+
    $('.owl-carousel').owlCarousel({
     loop: false,
     dots:false,
