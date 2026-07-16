@@ -20,30 +20,30 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // Helper to show toast
-    window.showToast = function(message, tag) {
-        if (typeof toastr === 'undefined') {
-            console.log(tag + ": " + message);
-            return;
-        }
+    // // Helper to show toast
+    // window.showToast = function(message, tag) {
+    //     if (typeof toastr === 'undefined') {
+    //         console.log(tag + ": " + message);
+    //         return;
+    //     }
         
-        switch(tag) {
-            case 'success':
-                toastr.success(message);
-                break;
-            case 'info':
-                toastr.info(message);
-                break;
-            case 'warning':
-                toastr.warning(message);
-                break;
-            case 'error':
-                toastr.error(message);
-                break;
-            default:
-                toastr.info(message);
-        }
-    };
+    //     switch(tag) {
+    //         case 'success':
+    //             toastr.success(message);
+    //             break;
+    //         case 'info':
+    //             toastr.info(message);
+    //             break;
+    //         case 'warning':
+    //             toastr.warning(message);
+    //             break;
+    //         case 'error':
+    //             toastr.error(message);
+    //             break;
+    //         default:
+    //             toastr.info(message);
+    //     }
+    // };
 
     // CSRF Token Helper
     function getCookie(name) {
@@ -113,14 +113,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 2. Update Global Cart Count UI immediately
         const navCartCount = document.getElementById('cart-count');
+        const bottomCartCount = document.getElementById('cart-count-bottom'); // If you have a bottom cart count
+        let currentCount = parseInt(navCartCount.textContent) || 0;
+        let newCount = Math.max(0, currentCount + quantity);
         if (navCartCount) {
-            let currentCount = parseInt(navCartCount.textContent) || 0;
-            let newCount = Math.max(0, currentCount + quantity);
             navCartCount.textContent = newCount;
             if (newCount > 0) {
                 navCartCount.classList.remove('d-none');
             } else {
                 navCartCount.classList.add('d-none');
+            }
+        }
+        if (bottomCartCount) {
+            bottomCartCount.textContent = newCount;
+            if (newCount > 0) {
+                bottomCartCount.classList.remove('d-none');
+            } else {
+                bottomCartCount.classList.add('d-none');
             }
         }
         // --- Optimistic UI Update End ---
@@ -138,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 // Show notification
-                showToast(data.message, data.message_tag);
+                // showToast(data.message, data.message_tag);
 
                 // Reconcile with server data (Source of Truth)
                 elementsToUpdate.forEach(ids => {
@@ -153,6 +162,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         navCartCount.classList.remove('d-none');
                     } else {
                         navCartCount.classList.add('d-none');
+                    }
+                }
+                if (bottomCartCount) {
+                    bottomCartCount.textContent = data.cart_count;
+                    if (data.cart_count > 0) {
+                        bottomCartCount.classList.remove('d-none');
+                    } else {
+                        bottomCartCount.classList.add('d-none');
                     }
                 }
 
