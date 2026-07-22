@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-&5*c9sj&+0!&&78)n23co=hh+oq44ep8whe!67w*#f*sj^2uc*'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0','209.74.88.131', 'luvbazar.com', 'www.luvbazar.com']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     
     # Third-party apps
     'rest_framework',
@@ -54,6 +55,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,7 +72,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
@@ -78,6 +81,15 @@ TEMPLATES = [
                 'cart.context_processors.cart_count',
                 'ecommerce.context_processors.site_info'
 
+            ],
+            'libraries': {
+                'custom_filter': 'ecommerce.templatetags.custom_filter',
+            },
+            'loaders': [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
             ],
         },
     },
@@ -132,9 +144,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# STATIC_ROOT = BASE_DIR / 'staticfiles'
+#STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+# WhiteNoise static file serving with compression and long-term caching
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_MAX_AGE = 31536000  # 1 year
+WHITENOISE_ALLOW_ALL_ORIGINS = True
 # Media files configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -179,8 +196,20 @@ SSL_COMMERZ_SESSION_API = 'https://sandbox.sslcommerz.com/gwprocess/v4/gateway.p
 # For production, use: SSL_COMMERZ_SESSION_API = 'https://securepay.sslcommerz.com/gwprocess/v4/gateway.php'
 
 # Site configuration
-SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
-# For production, use: SSL_COMMERZ_SESSION_API = 'https://securepay.sslcommerz.com/gwprocess/v4/gateway.php'
-SMS_API_URL = "https://api.sms.net.bd/sendsms" # Replace with your gateway's URL
-SMS_API_KEY = "IArH0xDI1U1P7LrDRJG1qxYhiOZNM4O4ZE57FDM7"
-SMS_SENDER_ID = "Luv Bazar"
+SITE_URL = os.getenv('SITE_URL', 'https://luvbazar.com')
+# For production, use the production SSL Commerz URLs
+SSL_COMMERZ_BASE_URL = 'https://securepay.sslcommerz.com/gwprocess/v4/api.php'
+SSL_COMMERZ_SESSION_API = 'https://securepay.sslcommerz.com/gwprocess/v4/gateway.php'
+
+SMS_API_URL = "" # Replace with your gateway's URL
+SMS_API_KEY = "u53QpjUF5xnqPScdmyp9"
+
+# Shared cache using Redis — required for OTP to work across all gunicorn workers
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "TIMEOUT": 300,  # Default 5 minutes (OTP expiry)
+    }
+}
+SMS_SENDER_ID = "8809648909088"

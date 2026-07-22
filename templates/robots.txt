@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /auth/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /payments/
+Disallow: /api/
+Disallow: /orders/
+
+Sitemap: https://luvbazar.com/sitemap.xml

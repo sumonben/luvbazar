@@ -113,7 +113,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // 2. Update Global Cart Count UI immediately
         const navCartCount = document.getElementById('cart-count');
-        const bottomCartCount = document.getElementById('cart-count-bottom'); // If you have a bottom cart count
+        const bottomCartCount = document.getElementById('cart-count-bottom'); 
+        const bottomCart=document.getElementById('site-cart');// If you have a bottom cart count
         let currentCount = parseInt(navCartCount.textContent) || 0;
         let newCount = Math.max(0, currentCount + quantity);
         if (navCartCount) {
@@ -168,8 +169,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     bottomCartCount.textContent = data.cart_count;
                     if (data.cart_count > 0) {
                         bottomCartCount.classList.remove('d-none');
+                        bottomCart.classList.remove('d-none');
+
                     } else {
                         bottomCartCount.classList.add('d-none');
+                        bottomCart.classList.add('d-none');
                     }
                 }
 

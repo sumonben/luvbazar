@@ -1,5 +1,6 @@
 from .models import Cart
 
+
 def cart_count(request):
     """Context processor to make cart_item_count available in all templates"""
     count = 0
@@ -11,8 +12,10 @@ def cart_count(request):
             cart = Cart.objects.filter(session_id=session_id).first()
         else:
             cart = None
-    
+
     if cart:
         count = cart.get_item_count()
-        print(f"Cart item count: {count}")
+
+    return {'cart_item_count': count}
+
     return {'cart_item_count': count}

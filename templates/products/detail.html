@@ -1,7 +1,53 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load cart_tags %}
-
+{% load custom_filter %}
 {% block title %}{{ product.name }} - {{ settings.site_name }}{% endblock %}
+
+{% block meta_description %}{{ product.description|truncatechars:160|striptags }}{% endblock %}
+{% block meta_keywords %}{{ product.name }}, {{ product.category.name }}, buy online Bangladesh, {{ settings.site_name }}{% endblock %}
+{% block canonical %}{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}{% endblock %}
+
+{% block og_type %}product{% endblock %}
+{% block og_title %}{{ product.name }} - {{ settings.site_name }}{% endblock %}
+{% block og_description %}{{ product.description|truncatechars:200|striptags }}{% endblock %}
+{% block og_image %}{% if product.image %}{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}/static/images/luvbazar.png{% endif %}{% endblock %}
+{% block twitter_title %}{{ product.name }} - {{ settings.site_name }}{% endblock %}
+{% block twitter_description %}{{ product.description|truncatechars:200|striptags }}{% endblock %}
+{% block twitter_image %}{% if product.image %}{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}{% else %}{{ request.scheme }}://{{ request.get_host }}/static/images/luvbazar.png{% endif %}{% endblock %}
+
+{% block schema_org %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "{{ product.name|escapejs }}",
+  "description": "{{ product.description|striptags|truncatechars:500|escapejs }}",
+  "image": "{% if product.image %}{{ request.scheme }}://{{ request.get_host }}{{ product.image.url }}{% endif %}",
+  "url": "{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}",
+  "sku": "{{ product.id }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ settings.site_name|default:'Luv Bazar'|escapejs }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "BDT",
+    "price": "{{ product.offer_price|default:product.price }}",
+    "availability": "{% if product.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "url": "{{ request.scheme }}://{{ request.get_host }}{{ product.get_absolute_url }}"
+  }{% if product.rating > 0 %},
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ product.rating }}",
+    "reviewCount": "{{ product.reviews.count }}",
+    "bestRating": "5",
+    "worstRating": "1"
+  }{% endif %}
+}
+</script>
+{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
@@ -225,16 +271,16 @@
                                 <i class="far fa-star"></i>
                             {% endif %}
                         {% endfor %}
-                        <span class="ms-2 text-muted">({{ product.reviews.count }} reviews)</span>
+                        <span class="ms-2 text-muted">({{ product.reviews.count | eng_to_bengali_digits }} reviews)</span>
                     </div>
                 </div>
 
                 <!-- Price -->
                 <div class="mb-4">
-                    <h2 class="text-primary mb-0">&#2547;{{ product.price }}</h2>
+                    <h2 class="text-primary mb-0">&#2547;{{ product.price | eng_to_bengali_digits }}</h2>
                     <p class="text-success">
                         {% if product.stock > 0 %}
-                            ✓ In Stock ({{ product.stock }} available)
+                            ✓ In Stock ({{ product.stock | eng_to_bengali_digits }} available)
                         {% else %}
                             Out of Stock
                         {% endif %}
@@ -275,13 +321,13 @@
 
                     <div class="mb-4">
                         <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}" class="input-group" style="max-width: 200px;">
-                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart plus-amount" type="button" data-id="{{ product.id }}" data-action="decrease">
                                             <i class="fas fa-minus"></i>
                                         </button>
                                         <input type="text" class="form-control form-control-sm text-center bg-white" 
                                                value="{{ cart_quantities|get_item:product.id|default:0 }}" 
                                                id="qty-input-{{ product.id }}" readonly>
-                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart minus-amount" type="button" data-id="{{ product.id }}" data-action="increase">
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
@@ -290,7 +336,7 @@
                                     <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %}" 
                                             id="add-btn-{{ product.id }}"
                                             data-id="{{ product.id }}" style="max-width: 200px;">
-                                        Add to Cart
+                                        Add to Bag
                                     </button>
                     
                         <button class="btn btn-outline-secondary btn-lg">
@@ -332,7 +378,7 @@
                                         {% endif %}
                                     {% endfor %}
                                 </div>
-                                <p class="text-muted">Based on {{ product.reviews.count }} reviews</p>
+                                <p class="text-muted">Based on {{ product.reviews.count  | eng_to_bengali_digits }} reviews</p>
                             </div>
                         </div>
                     </div>

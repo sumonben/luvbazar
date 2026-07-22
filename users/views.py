@@ -20,7 +20,7 @@ from rest_framework import status
 import json
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
-
+from django.views.decorators.csrf import csrf_exempt
 
 
 def register(request):
@@ -260,55 +260,67 @@ def order_detail(request, order_id):
 
 def generate_and_store_otp(phone_number):
     # Generate 6 digit OTP
-    # otp_code = str(random.randint(100000, 999999))
-    otp_code = "1234"  # For testing purposes, use a fixed OTP. Replace with random generation in production.    
+    otp_code = str(random.randint(100000, 999999))
     # Store in Django cache for 5 minutes (300 seconds)
-    
+    cache.set(f"otp_{phone_number}", otp_code, timeout=90)
+
     return otp_code
 
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def send_otp_sms(request):
     try:
         data = json.loads(request.body)
         phone_number = data.get("phone_number")
-        otp_code = generate_and_store_otp(phone_number)
-        print(f"Generated OTP for {phone_number}: {otp_code}")  # For testing, print the OTP to console
+
+        if not phone_number:
+            return JsonResponse({'status': 'error', 'message': 'Phone number is required'}, status=400)
+
+        otp_code = str(random.randint(1000, 9999))
         cache.set(f"otp_{phone_number}", otp_code, timeout=90)
+
         import urllib.parse
-        message = f"Your OTP for Ornaments BD verification is {otp_code}. Valid for 90 seconds."
-        # API_URL = (
-        #     f"http://bulksmsbd.net/api/smsapi"
-        #     f"?api_key={settings.SMS_API_KEY}"
-        #     f"&type=text"
-        #     f"&number={phone_number}"
-        #     f"&senderid={settings.SMS_SENDER_ID}"
-        #     f"&message={urllib.parse.quote(message)}"
-        # )
-        # try:
-        #     sms_response = requests.get(API_URL, timeout=10)
-        # except requests.RequestException:
-        #     pass  # OTP is cached; SMS failure is non-fatal
-        return JsonResponse({'status': 'success', 'message': 'Data processed successfully'}, status=200)
+        message = f"Your OTP for Luv Bazar verification is {otp_code}. Valid for 90 seconds."
+        API_URL = (
+            f"http://bulksmsbd.net/api/smsapi"
+            f"?api_key={settings.SMS_API_KEY}"
+            f"&type=text"
+            f"&number={phone_number}"
+            f"&senderid={settings.SMS_SENDER_ID}"
+            f"&message={urllib.parse.quote(message)}"
+        )
+        try:
+            sms_response = requests.get(API_URL, timeout=10)
+        except requests.RequestException:
+            pass  # OTP is cached; SMS failure is non-fatal
+
+        return JsonResponse({'status': 'success', 'message': 'OTP sent successfully'}, status=200)
 
     except json.JSONDecodeError:
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
 
+@csrf_exempt
 @require_http_methods(["POST"])
 def verify_otp_code(request):
+    try:
         data = json.loads(request.body)
         phone_number = data.get("phone_number")
         user_entered_otp = data.get("otp_code")
-        
+
+        if not phone_number or not user_entered_otp:
+            return JsonResponse({'status': 'error', 'message': 'Missing phone number or OTP'}, status=400)
+
         cached_otp = cache.get(f"otp_{phone_number}")
-        print(f"Verifying OTP for {phone_number}. User entered: {user_entered_otp}, Cached OTP: {cached_otp}")  # For testing, print verification details to console
+
         if not cached_otp:
-            return JsonResponse({'status': 'success', 'message': 'Session expired or invalid OTP'}, status=200)
-            
+            return JsonResponse({'status': 'error', 'message': 'OTP expired. Please request a new one.'}, status=200)
+
         if cached_otp == user_entered_otp:
-            print(f"OTP verified for {phone_number}")  # For testing, print verification success to console
-            # OTP is correct, perform login or registration here
-            cache.delete(f"otp_{phone_number}") # Clear OTP after use
+            cache.delete(f"otp_{phone_number}")
             return JsonResponse({'status': 'success', 'message': 'Verification successful!'}, status=200)
-            
-        return JsonResponse({'status': 'success', 'message': 'Invalid OTP'}, status=200)
+
+        return JsonResponse({'status': 'error', 'message': 'Invalid OTP. Please try again.'}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)

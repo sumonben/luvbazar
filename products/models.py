@@ -5,6 +5,7 @@ from django.urls import reverse
 
 
 class Category(models.Model):
+    serial=models.IntegerField(max_length=100, default=0)
     name = models.CharField(max_length=200, unique=True)
     description = models.TextField(blank=True, null=True)
     slug = models.SlugField(unique=True)
@@ -14,7 +15,10 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
-        ordering = ['name']
+        ordering = ['serial', 'name']
+        indexes = [
+            models.Index(fields=['slug']),
+        ]
 
     def __str__(self):
         return self.name
@@ -26,7 +30,7 @@ class Product(models.Model):
         ('inactive', 'Inactive'),
         ('discontinued', 'Discontinued'),
     ]
-
+    serial=models.IntegerField(max_length=100, default=0)
     name = models.CharField(max_length=255)
     description = models.TextField()
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='products')
@@ -42,10 +46,13 @@ class Product(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['serial', 'rating', 'name']
         indexes = [
             models.Index(fields=['slug']),
             models.Index(fields=['status']),
+            models.Index(fields=['status', 'rating']),
+            models.Index(fields=['status', 'serial']),
+            models.Index(fields=['category', 'status']),
         ]
 
     def __str__(self):
@@ -93,8 +100,23 @@ class Customer(models.Model):
     def __str__(self):
         return self.name or str(self.phone)
 
+class BackgroundCarousel(models.Model):
+    image = models.ImageField(upload_to='background_carousel/')
+    title = models.CharField(max_length=150, blank=True, null=True)
+    sub_title = models.CharField(max_length=150, blank=True, null=True)
+    action_text = models.CharField(max_length=50, blank=True, null=True)
+    action_url = models.URLField(blank=True, null=True)
+    order = models.IntegerField(default=0)
+    status = models.CharField(max_length=10, choices=(('active', 'Active'), ('inactive', 'Inactive')), default='active')
 
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title or f"Background Slide {self.id}"
+        
 class Carousel(models.Model):
+    
     image = models.ImageField(upload_to='carousel/')
     title = models.CharField(max_length=150, blank=True, null=True)
     sub_title = models.CharField(max_length=150, blank=True, null=True)

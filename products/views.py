@@ -7,7 +7,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from .models import Category, Product, Review, Carousel
+from .models import Category, Product, Review, Carousel, BackgroundCarousel
 from .serializers import CategorySerializer, ProductListSerializer, ProductDetailSerializer, ReviewSerializer
 from django.template.loader import render_to_string
 # from weasyprint import HTML
@@ -82,23 +82,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 # Template views for frontend
 def index(request):
-    # """Homepage view"""
-    # html_string = render_to_string('my_template.html', {'context_var': 'value'})
-
-    # # Convert HTML string to PDF
-    # html = HTML(string=html_string)
-    # pdf = html.write_pdf()
-
-    # # Return as HTTP response
-    # response = HttpResponse(pdf, content_type='application/pdf')
-    # response['Content-Disposition'] = 'inline; filename="report.pdf"'
-    # return response
     categories = Category.objects.prefetch_related(
-        Prefetch('products', queryset=Product.objects.filter(status='active'))
-    ).all()
-    featured_products = Product.objects.filter(status='active', rating__gte=4).order_by('-rating')[:12]
+        Prefetch('products', queryset=Product.objects.filter(status='active').only(
+            'id', 'name', 'slug', 'price', 'offer_price', 'image', 'rating', 'stock', 'unit'
+        ))
+    ).order_by('serial', 'name')
+    featured_products = Product.objects.filter(
+        status='active', rating__gte=4
+    ).only(
+        'id', 'name', 'slug', 'price', 'offer_price', 'image', 'rating', 'stock', 'unit'
+    ).order_by('-rating')[:12]
     slides = Carousel.objects.filter(status='active')
-    
+    background_slides = BackgroundCarousel.objects.filter(status='active')
     # Get cart product IDs
     cart_product_ids = []
     cart_quantities = {}
@@ -120,6 +115,7 @@ def index(request):
         'categories': categories,
         'featured_products': featured_products,
         'slides': slides,
+        'background_slides': background_slides,
         'cart_product_ids': cart_product_ids,
         'cart_quantities': cart_quantities,
     }
@@ -128,12 +124,11 @@ def index(request):
 
 def products_list(request):
     """Products listing page with filters"""
-    products = Product.objects.filter(status='active')
-    categories = Category.objects.all()
+    products = Product.objects.filter(status='active').select_related('category')
+    categories = Category.objects.only('id', 'name', 'slug')
     
     # Filter by category
     category_slug = request.GET.get('category')
-    print("Category slug:", category_slug)  # Debugging line
     if category_slug:
         products = products.filter(category__slug=category_slug)
     

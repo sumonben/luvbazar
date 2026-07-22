@@ -1,8 +1,26 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load cart_tags %}
+{% load custom_filter %}
+{% block title %}{{ settings.site_name }} - Fresh Organic Groceries Online{% endblock %}
+{% block meta_description %}{{ settings.site_description|default:'Shop fresh organic foods, vegetables, groceries and daily essentials at Luv Bazar. Fast delivery across Bangladesh. Best prices guaranteed.' }}{% endblock %}
+{% block canonical %}{{ request.scheme }}://{{ request.get_host }}/{% endblock %}
 
-{% block title %}{{ settings.site_name }}{% endblock %}
+{% block schema_org %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "{{ settings.site_name|default:'Luv Bazar'|escapejs }}",
+  "url": "{{ request.scheme }}://{{ request.get_host }}",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "{{ request.scheme }}://{{ request.get_host }}/products/?search={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
     
@@ -239,11 +257,15 @@
         <div class="container-lg">
         <div class="row">
           <div class="col-lg-6 pt-5 mt-5">
-            <h2><span class="fw-bold text-primary">Organic</span> Foods at your <span class="fw-bold">Doorsteps</span></h2>
-            <p class="fs-4">Any time, any place, instant delivery.</p>
+            <h2><span class="fw-bold text-primary" id="background_carousel_title">Organic</span> Foods at your <span class="fw-bold">Doorsteps</span></h2>
+            <p class="fs-4" id="background_carousel_subtitle">Any time, any place, instant delivery.</p>
             <div class="d-flex gap-3">
-              <a href="{% url 'products-list' %}" class="btn btn-primary text-uppercase fs-10 rounded-pill px-4 py-3 mt-3">Start Shopping</a>
-              <a href="{% url 'register' %}" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Join Now</a>
+              <a id="background_carousel_action_btn1" href="{% url 'products-list' %}" class="btn btn-primary text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Start Shopping</a>
+              {% if user.is_authenticated %}
+                <a id="background_carousel_action_btn2" href="{% url 'profile' %}" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">My Profile</a>
+              {% else %}
+                <a id="background_carousel_action_btn2" href="{% url 'register' %}" class="btn btn-dark text-uppercase fs-6 rounded-pill px-4 py-3 mt-3">Join Now</a>
+              {% endif %}
             </div>
             <div class="row my-5">
               <div class="col">
@@ -268,8 +290,8 @@
           </div>
         </div>
         
-        <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-3 g-0 justify-content-center">
-          <div class="col">
+        <div class="row row-cols-1 row-cols-sm-3 row-cols-lg-3 g-0 justify-content-center" style="display: flex;">
+          <div class="col"  style="flex: 1;">
             <div class="card border-0 bg-primary rounded-0 p-4 text-light">
               <div class="row">
                 <div class="col-md-3 text-center">
@@ -284,7 +306,7 @@
               </div>
             </div>
           </div>
-          <div class="col">
+          <div class="col" style="flex: 1;">
             <div class="card border-0 bg-secondary rounded-0 p-4 text-light">
               <div class="row">
                 <div class="col-md-3 text-center">
@@ -299,7 +321,7 @@
               </div>
             </div>
           </div>
-          <div class="col">
+          <div class="col" style="flex: 1;">
             <div class="card border-0 bg-danger rounded-0 p-4 text-light">
               <div class="row">
                 <div class="col-md-3 text-center">
@@ -307,8 +329,8 @@
                 </div>
                 <div class="col-md-9">
                   <div class="card-body p-0">
-                    <h5 class="text-light">Free delivery</h5>
-                    <p class="card-text">Get your products delivered for free within a short period.</p>
+                    <h5 class="text-light">Easy delivery</h5>
+                    <p class="card-text">Get your products delivered for reasonable amount within a short period of time.</p>
                   </div>
                 </div>
               </div>
@@ -371,7 +393,7 @@
             <div class="col-md-4 text-center">
                 <i class="fas fa-undo text-primary" style="font-size: 3rem; margin-bottom: 15px;"></i>
                 <h4>Easy Returns</h4>
-                <p>30-day hassle-free returns on all products.</p>
+                <p>Instant hassle-free returns on most of the products.</p>
             </div>
             <div class="col-md-4 text-center">
                 <i class="fas fa-lock text-primary" style="font-size: 3rem; margin-bottom: 15px;"></i>
@@ -413,7 +435,7 @@
                             </h5>
                             
                             <div class="d-flex justify-content-between align-items-center mb-3 div-price-rating">
-                                <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 }} 
+                                <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 | eng_to_bengali_digits }} 
                                 {% if product.unit %}
                                     / {{ product.unit }}
                                 {% endif %}
@@ -435,13 +457,13 @@
                                 {% if product.stock > 0 %}
                                     <!-- Quantity Controls (Hidden if not in cart) -->
                                     <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}">
-                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart minus-amount" type="button" data-id="{{ product.id }}" data-action="decrease">
                                             <i class="fas fa-minus"></i>
                                         </button>
                                         <input type="text" class="form-control form-control-sm text-center bg-white" 
                                                value="{{ cart_quantities|get_item:product.id|default:0 }}" 
                                                id="qty-input-{{ product.id }}" readonly>
-                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart plus-amount" type="button" data-id="{{ product.id }}" data-action="increase">
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
@@ -450,7 +472,7 @@
                                     <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
                                             id="add-btn-{{ product.id }}"
                                             data-id="{{ product.id }}">
-                                        Add to Cart
+                                        Add to Bag
                                     </button>
                                 {% else %}
                                     <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
@@ -469,16 +491,16 @@
     <div id="homeCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
         <div class="carousel-indicators">
             {% for slide in slides %}
-            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+            <button type="button" data-bs-target="{% url 'home' %}" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
             {% endfor %}
         </div>
         <div class="carousel-inner">
             {% for slide in slides %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}">
                 {% if slide.image %}
-                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title|default:'Slide' }}" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if forloop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}>
                 {% else %}
-                <img src="https://via.placeholder.com/1200x500" class="d-block w-100" alt="Placeholder" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if not forloop.first %}loading="lazy"{% endif %}>
+                <img src="/static/images/luvbazar.png" class="d-block w-100" alt="Luv Bazar" style="height: 50vh; object-fit: cover; filter: brightness(0.6);" {% if forloop.first %}fetchpriority="high" loading="eager"{% else %}loading="lazy"{% endif %}>
                 {% endif %}
                 <div class="carousel-caption d-flex flex-column justify-content-center align-items-center h-100" style="top: 0; bottom: 0;">
                     {% if slide.title %}
@@ -513,7 +535,7 @@
             {% if category.products.all %}
             <div class="category-section mt-5">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="mb-0">{{ category.name }}</h2>
+                    <h2 class="mb-4">{{ category.name }} <a href="{% url 'products-list' %}?category={{ category.slug }}">({{ category.products.count }})</a></h2>
                     <a href="{% url 'products-list' %}?category={{ category.slug }}" class="btn btn-outline-primary btn-sm">View All <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="owl-carousel owl-theme product-carousel">
@@ -547,7 +569,7 @@
                             </h5>
                             
                             <div class="d-flex justify-content-between align-items-center mb-3 div-price-rating">
-                                <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 }} 
+                                <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 | eng_to_bengali_digits }} 
                                 {% if product.unit %}
                                     / {{ product.unit }}
                                 {% endif %}
@@ -569,13 +591,13 @@
                                 {% if product.stock > 0 %}
                                     <!-- Quantity Controls (Hidden if not in cart) -->
                                     <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}">
-                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart minus-amount" type="button" data-id="{{ product.id }}" data-action="decrease">
                                             <i class="fas fa-minus"></i>
                                         </button>
                                         <input type="text" class="form-control form-control-sm text-center bg-white" 
                                                value="{{ cart_quantities|get_item:product.id|default:0 }}" 
                                                id="qty-input-{{ product.id }}" readonly>
-                                        <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                        <button class="btn btn-outline-secondary btn-sm update-cart plus-amount"  type="button" data-id="{{ product.id }}" data-action="increase">
                                             <i class="fas fa-plus"></i>
                                         </button>
                                     </div>
@@ -584,7 +606,7 @@
                                     <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
                                             id="add-btn-{{ product.id }}"
                                             data-id="{{ product.id }}">
-                                        Add to Cart
+                                        Add to Bag
                                     </button>
                                 {% else %}
                                     <button class="btn btn-secondary w-100" disabled>Out of Stock</button>
@@ -774,6 +796,43 @@
    
    
 
+        // Hero Section Background Image Carousel
+        document.addEventListener('DOMContentLoaded', function() {
+            const heroSection = document.querySelector('.hero-section-carousel');
+            const backgroundCarouselTitle = document.getElementById('background_carousel_title');
+            const backgroundCarouselSubtitle = document.getElementById('background_carousel_subtitle');
+            const backgroundCarouselActionBtn1 = document.getElementById('background_carousel_action_btn1');
+            const backgroundCarouselActionBtn2 = document.getElementById('background_carousel_action_btn2');
+            const backgroundSlides = [
+                {% for slide in background_slides %}
+                    '{{ slide.image.url }}',
+                {% endfor %}
+            ];
+            const backgroundTitles = [
+                {% for slide in background_slides %}
+                    '{{ slide.title|escapejs }}',
+                {% endfor %}
+            ];
+            const backgroundSubtitles = [
+                {% for slide in background_slides %}
+                    '{{ slide.subtitle|escapejs }}',
+                {% endfor %}
+            ];
+           
+                
+                let currentImageIndex = 0;
+                heroSection.style.backgroundImage = `url('${backgroundSlides[0]}')`;
+                backgroundCarouselTitle.textContent = backgroundTitles[0];
+                backgroundCarouselSubtitle.textContent = backgroundSubtitles[0];
+                
+                setInterval(function() {
+                    currentImageIndex = (currentImageIndex + 1) % backgroundSlides.length;
+                    heroSection.style.backgroundImage = `url('${backgroundSlides[currentImageIndex]}')`;
+                    backgroundCarouselTitle.textContent = backgroundTitles[currentImageIndex];
+                    backgroundCarouselSubtitle.textContent = backgroundSubtitles[currentImageIndex];
+                }, 5000);
+                  
+        });
         
     $(document).ready(function(){
         
@@ -882,5 +941,6 @@
         }
     }
 });
+
 </script>
 {% endblock %}

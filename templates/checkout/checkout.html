@@ -67,7 +67,12 @@
   opacity: 1;
   pointer-events: auto;
 }
-
+.sticky-top {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
 /* OTP Container Card */
 .otp-card {
   background: #fff;
@@ -78,6 +83,7 @@
   width: 90%;
   text-align: center;
   position: relative;
+  z-index: 1030; 
 }
 
 .close-btn {
@@ -202,9 +208,11 @@
     <div class="container py-5">
         <h2 class="mb-4"><i class="fas fa-credit-card"></i> Checkout</h2>
 
+        <form method="POST" id="id_checkout_form">
+        {% csrf_token %}
         <div class="row">
-            <!-- Left Column: Shipping & Payment Info -->
-            <div class="col-lg-8">
+            <!-- Shipping Address -->
+            <div class="col-12 col-lg-8">
                 <!-- Progress Steps -->
                 <div class="row mb-4">
                     <div class="col-12">
@@ -229,10 +237,6 @@
                     </div>
                 </div>
 
-                <!-- Checkout Form -->
-                <form method="POST" id="id_checkout_form">
-                    {% csrf_token %}
-
                     <!-- Shipping Address Section -->
                     <div class="card mb-4">
                         <div class="card-header bg-primary text-white">
@@ -240,15 +244,15 @@
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
-                                
                                 <div class="col-md-6">
-                                <label class="form-label">Phone Number *</label>
+                                    <label class="form-label">Phone Number *</label>
                                     <input type="tel" class="form-control" id="id_phone" name="phone" value="{% if request.user.is_authenticated %}{{ request.user.userprofile.phone }}{% endif %}" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Receiver Name *</label>
                                     <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ request.user.first_name }}" required>
                                 </div>
+                                
                                 <div class="mb-3">
                                     <label class="form-label">Email Address (Optional)</label>
                                     <input type="email" id="id_email" class="form-control" name="email" value="{{ request.user.email }}">
@@ -264,7 +268,7 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Division/Region *</label>
+                                    <label class="form-label">Division *</label>
                                     <select class="form-select" id="division" name="division" required>
                                         <option value="">Select a division</option>
                                     </select>
@@ -279,14 +283,14 @@
 
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Upazila /Ward*</label>
+                                    <label class="form-label">Upazila/Ward*</label>
                                     <select class="form-select" id="upazila" name="upazila" required>
                                         <option value="">Select an upazila</option>
                                     </select>
                                 </div>
                                 <!-- <div class="col-md-6">
-                                    <label class="form-label">Union *</label>
-                                    <select class="form-select" id="union" name="union" required>
+                                    <label class="form-label">Union </label>
+                                    <select class="form-select" id="union" name="union" >
                                         <option value="">Select a union</option>
                                     </select>
                                 </div> -->
@@ -301,84 +305,12 @@
                         </div>
                     </div>
 
-                    <!-- Payment Method Section -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0"><i class="fas fa-credit-card"></i> Payment Method</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <label class="form-label">Select Payment Method *</label>
-                                
-                                <!-- SSL Commerz -->
-                                <div class="form-check payment-option p-3 rounded mb-3" >
-                                    <input class="form-check-input" type="radio" name="payment_method" id="sslcommerz" value="sslcommerz"  disabled>
-                                    <label class="form-check-label w-100" for="sslcommerz">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <strong>SSL Commerz</strong>
-                                                <small class="d-block text-muted">Credit/Debit Card, Mobile Banking</small>
-                                            </div>
-                                            <i class="fas fa-lock text-success"></i>
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- Cash on Delivery -->
-                                <div class="form-check payment-option p-3 rounded mb-3">
-                                    <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cash_on_delivery" checked>
-                                    <label class="form-check-label w-100" for="cod">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <strong>Cash on Delivery</strong>
-                                                <small class="d-block text-muted">Pay when you receive your order</small>
-                                            </div>
-                                            <i class="fas fa-money-bill text-info"></i>
-                                        </div>
-                                    </label>
-                                </div>
-
-                                <!-- Bank Transfer -->
-                                <!-- <div class="form-check payment-option p-3 rounded mb-3">
-                                    <input class="form-check-input" type="radio" name="payment_method" id="bank" value="bank_transfer">
-                                    <label class="form-check-label w-100" for="bank">
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <div>
-                                                <strong>Bank Transfer</strong>
-                                                <small class="d-block text-muted">Direct bank transfer to our account</small>
-                                            </div>
-                                            <i class="fas fa-university text-primary"></i>
-                                        </div>
-                                    </label>
-                                </div> -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Form Actions -->
-                    <div class="d-flex gap-2">
-                        <a href="{% url 'cart' %}" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Cart
-                        </a>
-                        
-                        {% if request.user.is_authenticated %}
-                        <button type="submit" class="btn btn-lg btn-success flex-grow-1" style="display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check"></i> Complete Order
-                        </button>
-                        {% else %}
-                        <a id="open-otp-btn" class="btn btn-lg btn-success flex-grow-1">Verify Mobile & Place Order</a>
-                        {% endif %}
-                            
-                        
-                    </div>
-                </form>
             </div>
-
             <!-- Right Column: Order Summary -->
-            <div class="col-lg-4">
+            <div class="col-12 col-lg-4 align-self-start">
                 <div class="card sticky-top" style="top: 20px;">
                     <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> Order Summary</h5>
+                        <h5 class="mb-0"><i class="fas fa-shopping-bag" style="color:white"></i> Order Summary</h5>
                     </div>
                     <div class="card-body">
                         <!-- Cart Items -->
@@ -387,7 +319,11 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <div>
                                     <h6 class="mb-0">{{ item.product.name }}</h6>
-                                    <small class="text-muted">Qty: {{ item.quantity }}</small>
+                                    <small class="text-muted">Qty: {{ item.quantity }}
+                                        {% if item.size %}
+                                            | Size: <span class="badge bg-secondary">{{ item.size }}</span>
+                                        {% endif %}
+                                    </small>
                                 </div>
                                 <span class="fw-bold">{{ item.product.price }} &#10006; {{ item.quantity }} = {{ item.get_total_price }}(৳)</span>
                             </div>
@@ -403,7 +339,7 @@
 
                         <div class="mb-2 d-flex justify-content-between">
                             <span>Shipping:</span>
-                            <span>&#2547;20</span>
+                            <span id="shippingCost">&#2547;110(Outside Bogura)</span>
                         </div>
 
                         <div class="mb-3 d-flex justify-content-between">
@@ -435,8 +371,159 @@
                     </div>
                 </div>
             </div>
+            <!-- Payment Method & Actions -->
+            <div class="col-12 col-lg-8">
+                    <!-- Payment Method Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0"><i class="fas fa-credit-card"></i> Payment Method</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label">Select Payment Method *</label>
+                                
+                                <!-- SSL Commerz -->
+                                <div class="form-check payment-option p-3 rounded mb-3" >
+                                    <input class="form-check-input" type="radio" name="payment_method" id="sslcommerz" value="sslcommerz" disabled>
+                                    <label class="form-check-label w-100" for="sslcommerz">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <strong>SSL Commerz</strong>
+                                                <small class="d-block text-muted">Credit/Debit Card, Mobile Banking</small>
+                                            </div>
+                                            <i class="fas fa-lock text-success"></i>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Cash on Delivery -->
+                                <div class="form-check payment-option p-3 rounded mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cash_on_delivery" checked>
+                                    <label class="form-check-label w-100" for="cod">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <strong>Cash on Delivery</strong>
+                                                <small class="d-block text-muted">Pay when you receive your order</small>
+                                            </div>
+                                            <i class="fas fa-money-bill text-info"></i>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Bank Transfer -->
+                               <!--<div class="form-check payment-option p-3 rounded mb-3">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="bank" value="bank_transfer">
+                                    <label class="form-check-label w-100" for="bank">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <strong>Bank Transfer</strong>
+                                                <small class="d-block text-muted">Direct bank transfer to our account</small>
+                                            </div>
+                                            <i class="fas fa-university text-primary"></i>
+                                        </div>
+                                    </label>
+                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'cart' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Cart
+                        </a>
+                        
+                        {% if request.user.is_authenticated %}
+                        <button type="submit" class="btn btn-lg btn-success flex-grow-1" style="display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-check"></i> Complete Order
+                        </button>
+                        {% else %}
+                        <a id="open-otp-btn" class="btn btn-lg btn-success flex-grow-1">Verify Mobile & Place Order</a>
+                        {% endif %}
+                            
+                        
+                    </div>
+            </div>
         </div>
+        </form>
     </div>
+                
+    <style>
+        .checkout-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            width: 50%;
+            height: 2px;
+            background-color: #e9ecef;
+        }
+
+        .step.active:not(:last-child)::after {
+            background-color: var(--primary-color);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #6c757d;
+            z-index: 1;
+        }
+
+        .step.active .step-number {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .step.active .step-label {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .payment-option {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover {
+            background-color: #f8f9fa !important;
+        }
+
+        .payment-option input[type="radio"]:checked + label {
+            color: var(--primary-color);
+        }
+
+        .payment-option input[type="radio"]:checked {
+            border-color: var(--primary-color);
+        }
+    </style>
                 
     <style>
         .checkout-steps {

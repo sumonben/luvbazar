@@ -1,17 +1,22 @@
 from django.contrib import admin
-from .models import Category, Product, Review, Carousel, Customer, SiteSetting
+from django.core.cache import cache
+from .models import Category, Product, Review, Carousel, Customer, SiteSetting, BackgroundCarousel
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'slug', 'created_at']
+    list_display = ['serial', 'name', 'slug', 'created_at']
     search_fields = ['name', 'slug']
     prepopulated_fields = {'slug': ('name',)}
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        cache.delete('all_categories')
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'stock', 'status', 'rating', 'created_at']
+    list_display = ['serial', 'name', 'category', 'price', 'stock', 'status', 'rating', 'created_at']
     list_filter = ['status', 'category', 'created_at']
     search_fields = ['name', 'description', 'slug']
     readonly_fields = ['created_at', 'updated_at', 'rating']
@@ -48,6 +53,10 @@ class ReviewAdmin(admin.ModelAdmin):
 class CarouselAdmin(admin.ModelAdmin):
     list_display = ['title', 'order', 'status']
     list_editable = ['order', 'status']
+@admin.register(BackgroundCarousel)
+class BackgroundCarouselAdmin(admin.ModelAdmin):
+    list_display = ['title', 'order', 'status']
+    list_editable = ['order', 'status']
 
 
 @admin.register(Customer)
@@ -63,6 +72,10 @@ class SiteSettingAdmin(admin.ModelAdmin):
         if self.model.objects.exists():
             return False
         return super().has_add_permission(request)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        cache.delete('site_settings')
 
 
 

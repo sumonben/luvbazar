@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load cart_tags %}
 {% load site_tags %}
-
-{% block title %}{{products.0.category.name}}-{{ settings.site_name }}{% endblock %}
+{% load custom_filter %}
+{% block title %}{% if selected_category %}{{ selected_category }} Products - {% endif %}{{ settings.site_name }}{% endblock %}
+{% block meta_description %}Browse our full range of fresh organic groceries{% if selected_category %} in {{ selected_category }}{% endif %} at Luv Bazar. Best prices with fast delivery across Bangladesh.{% endblock %}
+{% block canonical %}{{ request.scheme }}://{{ request.get_host }}/products/{% endblock %}
 
 {% block content %}
 <style>
@@ -174,9 +177,9 @@
                                         
                                         {% if product.offer_price %}
                                         <del>&#2547;{{ product.price|floatformat:2 }}</del>
-                                        <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.offer_price|floatformat:2 }}<span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary h5-price">{{ product.price|subtract:product.offer_price|floatformat:2 }} OFF</span></h5>
+                                        <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.offer_price|floatformat:2 | eng_to_bengali_digits }}<span class="badge border border-dark-subtle rounded-0 fw-normal px-1 fs-7 lh-1 text-body-tertiary h5-price">{{ product.price|subtract:product.offer_price|floatformat:2 | eng_to_bengali_digits }} OFF</span></h5>
                                         {% else %}
-                                        <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 }}</h5>
+                                        <h5 class="mb-0 text-primary h5-price">&#2547;{{ product.price|floatformat:2 | eng_to_bengali_digits }}</h5>
                                         {% endif %}
                                             
                                         <div class="product-rating text-warning small ">
@@ -187,7 +190,7 @@
                                                     <i class="far fa-star"></i>
                                                 {% endif %}
                                             {% endfor %}
-                                            <span class="text-muted">({{ product.reviews.count }})</span>
+                                            <span class="text-muted">({{ product.reviews.count | eng_to_bengali_digits }})</span>
                                         </div>
                                     </div>
 
@@ -196,13 +199,13 @@
                                         {% if product.stock > 0 %}
                                             <!-- Quantity Controls (Hidden if not in cart) -->
                                             <div class="input-group quantity-controls {% if product.id not in cart_product_ids %}d-none{% endif %}" id="qty-group-{{ product.id }}">
-                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="decrease">
+                                                <button class="btn btn-outline-secondary btn-sm update-cart plus-amount" type="button" data-id="{{ product.id }}" data-action="decrease">
                                                     <i class="fas fa-minus"></i>
                                                 </button>
                                                 <input type="text" class="form-control form-control-sm text-center bg-white" 
                                                        value="{% if cart_quantities %}{{ cart_quantities|get_item:product.id|default:0 }}{% else %}0{% endif %}"
                                                        id="qty-input-{{ product.id }}" readonly>
-                                                <button class="btn btn-outline-secondary btn-sm update-cart" type="button" data-id="{{ product.id }}" data-action="increase">
+                                                <button class="btn btn-outline-secondary btn-sm update-cart minus-amount" type="button" data-id="{{ product.id }}" data-action="increase">
                                                     <i class="fas fa-plus"></i>
                                                 </button>
                                             </div>
@@ -211,7 +214,7 @@
                                             <button class="btn btn-primary w-100 add-to-cart-btn {% if product.id in cart_product_ids %}d-none{% endif %} btn-add-to-cart" 
                                                     id="add-btn-{{ product.id }}"
                                                     data-id="{{ product.id }}">
-                                                Add to Cart
+                                                Add to Bag
                                             </button>
                                         {% else %}
                                             <button class="btn btn-secondary w-100" disabled>Out of Stock</button>

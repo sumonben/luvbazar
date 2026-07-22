@@ -13,8 +13,15 @@ This is main CSS file that contains custom style rules used in this template
 /*--------------------------------------------------------------
 /** VARIABLES
 --------------------------------------------------------------*/
+@font-face {
+                font-family: 'SolaimanLipi';
+                src: url('/static/fonts/SolaimanLipi.ttf') format('truetype');
+                font-weight: normal;
+                font-style: normal;
+           
+            }
 body {
-  --heading-font        : "Inter", sans-serif;
+  --heading-font: 'SolaimanLipi', sans-serif;
   --bs-link-color: #333;
   --bs-link-hover-color:#333;
 
@@ -23,8 +30,8 @@ body {
 
   --bs-light-rgb: 248, 248, 248;
 
-  --bs-font-sans-serif: "Inter", sans-serif;
-  --bs-body-font-family: var(--bs-font-sans-serif);
+  --bs-font-sans-serif: 'SolaimanLipi', sans-serif;
+  --bs-body-font-family: 'SolaimanLipi', sans-serif;
   --bs-body-font-size: 1rem;
   --bs-body-font-weight: 400;
   --bs-body-line-height: 2;
@@ -528,7 +535,7 @@ input[type=number]::-webkit-outer-spin-button {
   display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
-  font-family: var(--bs-body-font-family);
+  font-family: var(--heading-font);
   letter-spacing: 0.0875rem;
   text-transform: uppercase;
   text-decoration: none;
